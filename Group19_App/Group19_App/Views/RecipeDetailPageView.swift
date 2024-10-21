@@ -25,92 +25,119 @@ struct RecipeDetailPageView: View {
     var meal: Meal  // Pass the meal object to show its details
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                // Image and YouTube link slider
-                TabView {
-                    // Meal Image
-                    if let url = URL(string: meal.strMealThumb) {
-                        AsyncImage(url: url) { image in
-                            image
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: .infinity, height: 300)
+        VStack(spacing: 0) {
+            // Top yellow bar
+            ZStack {
+                Color.yellow
+                    .edgesIgnoringSafeArea(.top) // Ignore only the top safe area
+                
+                HStack {
+                    Text(meal.strMeal)
+                        .font(.custom("Avenir Next", size: 30))
+                        .fontWeight(.bold)
+                        .foregroundColor(.black)
+                }
+                .padding(.top, 50) // Adjust padding from the top for content
+                .frame(maxWidth: .infinity)
+            }
+            .frame(height: 150)
+            .cornerRadius(20)
+            .ignoresSafeArea()// Fix the height of the yellow bar
+            .padding(.bottom,-50)//doesnt fix the issue from appearing in contentView
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    // Image and YouTube link slider
+                    TabView {
+                        // Meal Image
+                        if let url = URL(string: meal.strMealThumb) {
+                            AsyncImage(url: url) { image in
+                                image
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: .infinity, height: 300)
+                                    .cornerRadius(10)
+                                    .padding()
+                            } placeholder: {
+                                ProgressView()
+                            }
+                        }
+
+                        // YouTube Video in a WebView
+                        if let youtubeURL = URL(string: getYouTubeEmbedURL(youtubeLink: meal.strYoutube)) {
+                            WebView(url: youtubeURL)
+                                .frame(maxWidth: .infinity, maxHeight: 300)
                                 .cornerRadius(10)
                                 .padding()
-                        } placeholder: {
-                            ProgressView()
                         }
                     }
-                    
-                    // YouTube Video in a WebView
-                    if let youtubeURL = URL(string: getYouTubeEmbedURL(youtubeLink: meal.strYoutube)) {
-                        WebView(url: youtubeURL)
-                            .frame(maxWidth: .infinity, maxHeight: 300)
-                            .cornerRadius(10)
-                            .padding()
-                    }
-                }
-                .frame(height: 300)
-                .tabViewStyle(PageTabViewStyle()) // Make it look like a slider
+                    .frame(height: 300)
+                    .tabViewStyle(PageTabViewStyle()) // Make it look like a slider
 
-                // Meal Name
-                Text(meal.strMeal)
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .padding(.bottom, 10)
-                
-                // Category and Area (Cuisine)
-                HStack {
-                    Text("Category: \(meal.strCategory)")
-                        .font(.subheadline)
-                    Spacer()
-                    Text("Area: \(meal.strArea)")
-                        .font(.subheadline)
-                }
-                .padding(.bottom, 5)
-                
-                // Ingredients and Measures
-                Text("Ingredients")
-                    .font(.title2)
-                    .padding(.top, 5)
-                
-                ForEach(0..<meal.strIngredients.count, id: \.self) { index in
+
+                    // Category and Area (Cuisine)
                     HStack {
-                        Text("\(meal.strMeasures[index])")
-                            .font(.subheadline)
-                        Text(meal.strIngredients[index])
-                            .font(.subheadline)
+                        HStack {
+                            Text("Category:")
+                                .font(.custom("Avenir Next", size: 20))
+                                .fontWeight(.bold)
+                            Text("\(meal.strCategory)")
+                                .font(.custom("Avenir Next", size: 20))
+                        }
+                        Spacer()
+                        
+                        HStack {
+                            Text("Area:")
+                                .font(.custom("Avenir Next", size: 18))
+                                .fontWeight(.bold)
+                            Text("\(meal.strArea)")
+                                .font(.custom("Avenir Next", size: 18))
+                        }
+                    }
+                    .padding(.bottom, 5)
+
+                    // Ingredients and Measures
+                    Text("Ingredients")
+                        .font(.custom("Avenir Next", size: 25))
+                        .fontWeight(.bold)
+                        .padding(.top, 5)
+                        
+
+                    ForEach(0..<meal.strIngredients.count, id: \.self) { index in
+                        HStack {
+                            Text("•") // Adding the bullet point
+                            Text("\(meal.strMeasures[index])")
+                                .font(.custom("Avenir Next", size: 18))
+                            Text(meal.strIngredients[index])
+                                .font(.custom("Avenir Next", size: 18))
+                        }
+                    }
+
+                    // Instructions
+                    Text("Instructions")
+                        .font(.custom("Avenir Next", size: 25))
+                        .fontWeight(.bold)
+                        .padding(.top, 10)
+
+                    Text(meal.strInstructions)
+                        .font(.custom("Avenir Next", size: 18))
+                        .padding(.top, 5)
+
+                    // Tags
+                    if let tags = meal.strTags {
+                        Text("Tags: \(tags)")
+                            .font(.custom("Avenir Next", size: 14))
+                            .fontWeight(.bold)
+                            .padding(.top, 5)
                     }
                 }
-                
-                // Instructions
-                Text("Instructions")
-                    .font(.title2)
-                    .padding(.top, 10)
-                
-                Text(meal.strInstructions)
-                    .font(.body)
-                    .padding(.top, 5)
-                
-                // Tags
-                if let tags = meal.strTags {
-                    Text("Tags: \(tags)")
-                        .font(.subheadline)
-                        .padding(.top, 5)
-                }
+                .padding() // Padding for content within the scroll view
             }
-            .padding()
-            
+            .padding(.bottom, 65) // For the safe area at the bottom (e.g., when having a tab bar)
         }
-        .padding(.bottom,65)
-        .navigationTitle(meal.strMeal)
-        .navigationBarTitleDisplayMode(.inline)
     }
 
     // Function to convert the YouTube URL to an embeddable version
     func getYouTubeEmbedURL(youtubeLink: String) -> String {
-        // Convert standard YouTube link to an embed link
         if let videoID = youtubeLink.components(separatedBy: "v=").last {
             return "https://www.youtube.com/embed/\(videoID)"
         }
