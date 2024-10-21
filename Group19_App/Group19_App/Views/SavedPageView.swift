@@ -89,6 +89,7 @@ struct SavedPageView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     if savedMeals.isEmpty {
+                        Spacer()
                         Text("No saved meals yet!")
                             .font(.title2)
                             .foregroundColor(.gray)
