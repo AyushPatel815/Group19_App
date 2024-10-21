@@ -33,7 +33,7 @@ struct RecipeDetailPageView: View {
                 
                 HStack {
                     Text(meal.strMeal)
-                        .font(.title)
+                        .font(.custom("Avenir Next", size: 30))
                         .fontWeight(.bold)
                         .foregroundColor(.black)
                 }
@@ -76,42 +76,57 @@ struct RecipeDetailPageView: View {
 
                     // Category and Area (Cuisine)
                     HStack {
-                        Text("Category: \(meal.strCategory)")
-                            .font(.subheadline)
+                        HStack {
+                            Text("Category:")
+                                .font(.custom("Avenir Next", size: 20))
+                                .fontWeight(.bold)
+                            Text("\(meal.strCategory)")
+                                .font(.custom("Avenir Next", size: 20))
+                        }
                         Spacer()
-                        Text("Area: \(meal.strArea)")
-                            .font(.subheadline)
+                        
+                        HStack {
+                            Text("Area:")
+                                .font(.custom("Avenir Next", size: 18))
+                                .fontWeight(.bold)
+                            Text("\(meal.strArea)")
+                                .font(.custom("Avenir Next", size: 18))
+                        }
                     }
                     .padding(.bottom, 5)
 
                     // Ingredients and Measures
                     Text("Ingredients")
-                        .font(.title2.bold())
+                        .font(.custom("Avenir Next", size: 25))
+                        .fontWeight(.bold)
                         .padding(.top, 5)
                         
 
                     ForEach(0..<meal.strIngredients.count, id: \.self) { index in
                         HStack {
+                            Text("•") // Adding the bullet point
                             Text("\(meal.strMeasures[index])")
-                                .font(.subheadline)
+                                .font(.custom("Avenir Next", size: 18))
                             Text(meal.strIngredients[index])
-                                .font(.subheadline)
+                                .font(.custom("Avenir Next", size: 18))
                         }
                     }
 
                     // Instructions
                     Text("Instructions")
-                        .font(.title2.bold())
+                        .font(.custom("Avenir Next", size: 25))
+                        .fontWeight(.bold)
                         .padding(.top, 10)
 
                     Text(meal.strInstructions)
-                        .font(.body)
+                        .font(.custom("Avenir Next", size: 18))
                         .padding(.top, 5)
 
                     // Tags
                     if let tags = meal.strTags {
                         Text("Tags: \(tags)")
-                            .font(.subheadline.bold())
+                            .font(.custom("Avenir Next", size: 14))
+                            .fontWeight(.bold)
                             .padding(.top, 5)
                     }
                 }
