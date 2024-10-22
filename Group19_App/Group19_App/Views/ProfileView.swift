@@ -118,9 +118,10 @@ struct SettingsView: View {
         VStack(spacing: 0) {
             // Title at the top
             Text("Settings")
-                .font(.system(size: 36, weight: .bold)) 
+                .font(.custom("Avenir Next", size: 36))
                 .padding(.top, 40)
                 .padding(.bottom, 20)
+                .fontWeight(.bold)
             
 
             VStack(spacing: 10) {
@@ -150,7 +151,8 @@ struct SettingButton: View {
         }) {
             HStack {
                 Text(title)
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.custom("Avenir Next", size: 15))
+                    .fontWeight(.bold)
                     .foregroundColor(.black)
                     .padding(.vertical, 16)
                 Spacer()
