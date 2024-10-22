@@ -40,7 +40,7 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background()
                 .tag(Tab.Calendar)
-            Text("Profile View")
+            ProfileView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background()
                 .tag(Tab.Profile)
