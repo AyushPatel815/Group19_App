@@ -197,6 +197,7 @@ struct RecipeEntry: View {
                 }
             }
             .padding()
+            
         }
     }
 }

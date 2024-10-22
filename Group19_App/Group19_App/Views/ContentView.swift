@@ -16,6 +16,12 @@ struct ContentView: View {
     
     init() {
         UITabBar.appearance().isHidden = true
+//        let appearance = UINavigationBarAppearance()
+//        appearance.configureWithOpaqueBackground()
+//        appearance.backgroundColor = UIColor.systemYellow // Set your yellow color here
+//        appearance.titleTextAttributes = [.foregroundColor: UIColor.black] // Set title color
+//        UINavigationBar.appearance().standardAppearance = appearance
+//        UINavigationBar.appearance().scrollEdgeAppearance = appearance
     }
     
     @Namespace var animation
