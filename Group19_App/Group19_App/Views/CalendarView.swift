@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CalendarView: View {
     @State private var currentDate = Date()  // Current selected date
-    @State private var mealPlans: [Date: [String]] = [:]  // Dictionary to hold meal plans for each date
+    @State private var mealPlans: [Date: MealPlan] = [:]  // Dictionary to hold meal plans for each date
 
     let calendar = Calendar.current
     let columns = Array(repeating: GridItem(.flexible()), count: 7)  // 7 columns for the days of the week
@@ -18,7 +18,7 @@ struct CalendarView: View {
         NavigationStack {
             VStack {
                 // Current Month and Year
-                Text("\(currentMonthAndYear)")
+                Text(currentMonthAndYear)
                     .font(.largeTitle)
                     .bold()
                     .padding()
@@ -32,32 +32,59 @@ struct CalendarView: View {
                     }
 
                     ForEach(daysInMonth(), id: \.self) { date in
-                        DayCellView(date: date, hasMealPlan: mealPlans[date] != nil)
-                            .onTapGesture {
-                                currentDate = date
-                            }
+                        DayCellView(
+                            date: date,
+                            hasMealPlan: mealPlans[date] != nil,
+                            isSelected: calendar.isDate(date, inSameDayAs: currentDate)  // Check if this is the selected date
+                        )
+                        .onTapGesture {
+                            currentDate = date  // Update the selected date when tapped
+                        }
                     }
                 }
                 .padding()
 
-                // Display the Meal Plan or option to create one for the selected date
-                if let meals = mealPlans[currentDate] {
-                    Text("Meals for \(formattedDate(currentDate)):")
-                        .font(.title2)
-                        .padding(.top)
+                // Display the Meal Plan sections for Breakfast, Lunch, and Dinner
+                if let mealPlan = mealPlans[currentDate] {
+                    ScrollView {
+                        // Display Breakfast Section
+                        MealSectionView(
+                            mealType: "Breakfast",
+                            notes: Binding(
+                                get: { mealPlan.breakfast },
+                                set: { mealPlans[currentDate]?.breakfast = $0 }
+                            )
+                        )
 
-                    List(meals, id: \.self) { meal in
-                        Text(meal)
+                        // Display Lunch Section
+                        MealSectionView(
+                            mealType: "Lunch",
+                            notes: Binding(
+                                get: { mealPlan.lunch },
+                                set: { mealPlans[currentDate]?.lunch = $0 }
+                            )
+                        )
+
+                        // Display Dinner Section
+                        MealSectionView(
+                            mealType: "Dinner",
+                            notes: Binding(
+                                get: { mealPlan.dinner },
+                                set: { mealPlans[currentDate]?.dinner = $0 }
+                            )
+                        )
                     }
+                    .padding(.top)
                 } else {
                     Text("No meals planned for \(formattedDate(currentDate))")
                         .font(.title2)
                         .padding(.top)
 
+                    // Initialize the meal plan when needed
                     Button(action: {
-                        addMealPlan(for: currentDate)
+                        mealPlans[currentDate] = MealPlan()  // Initialize meal plan for the selected date
                     }) {
-                        Text("Add Meal Plan")
+                        Text("Create Meal Plan")
                             .font(.title2)
                             .padding()
                             .background(Color.blue)
@@ -97,35 +124,19 @@ struct CalendarView: View {
         return formatter.string(from: date)
     }
 
-    // Function to add a sample meal plan for a date
-    func addMealPlan(for date: Date) {
-        mealPlans[date] = ["Breakfast: Pancakes", "Lunch: Sandwich", "Dinner: Pasta"]
-    }
-
-    // Days of the week
+    // Days of the week (short symbols like "Sun", "Mon", etc.)
     var weekdays: [String] {
         let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
         return formatter.shortWeekdaySymbols
     }
 }
 
-// View for each day cell in the calendar
-struct DayCellView: View {
-    let date: Date
-    let hasMealPlan: Bool
-
-    var body: some View {
-        VStack {
-            Text("\(Calendar.current.component(.day, from: date))")
-                .font(.title3)
-                .bold()
-                .foregroundColor(hasMealPlan ? .green : .primary)  // Highlight days with meal plans
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(hasMealPlan ? Color.green.opacity(0.1) : Color.clear)
-                .cornerRadius(10)
-        }
-        .frame(height: 40)
-    }
+// MealPlan struct that holds breakfast, lunch, and dinner
+struct MealPlan {
+    var breakfast: [String] = []
+    var lunch: [String] = []
+    var dinner: [String] = []
 }
 
 #Preview {

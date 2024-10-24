@@ -16,25 +16,35 @@ struct ContentView: View {
     
     init() {
         UITabBar.appearance().isHidden = true
+//        let appearance = UINavigationBarAppearance()
+//        appearance.configureWithOpaqueBackground()
+//        appearance.backgroundColor = UIColor.systemYellow // Set your yellow color here
+//        appearance.titleTextAttributes = [.foregroundColor: UIColor.black] // Set title color
+//        UINavigationBar.appearance().standardAppearance = appearance
+//        UINavigationBar.appearance().scrollEdgeAppearance = appearance
     }
     
     @Namespace var animation
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            HomePageView(savedMeals: $savedMeals)
+            HomePageView(meals: $meals,savedMeals: $savedMeals)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background()
                 .tag(Tab.Home)
             SavedPageView(savedMeals: $savedMeals, meals: $meals)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background()
-                .tag(Tab.Store)
+                .tag(Tab.Save)
             CalendarView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background()
                 .tag(Tab.Calendar)
-            ProfileView()
+            AddRecipePageView(meals: $meals)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background()
+                .tag(Tab.Add)
+            ProfilePageView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background()
                 .tag(Tab.Profile)
@@ -67,9 +77,9 @@ struct ContentView: View {
                 }, label: {
                     VStack(spacing: 0) {
                         VStack {
-                            if tab == .Store {
+                            if tab == .Calendar {
                                 // Use the custom image from assets
-                                Image("save")
+                                Image(systemName: "calendar")
                                     .resizable()
                                     .foregroundColor(.black)
                                     .aspectRatio(contentMode: .fit)
@@ -93,7 +103,7 @@ struct ContentView: View {
                                     )
                             } else {
                                 // Use system icon for other tabs
-                                Image(systemName: selectedTab == tab ? tab.iconName : tab.iconName)
+                                Image(systemName: selectedTab == tab ? tab.iconName + ".fill" : tab.iconName)
                                     .resizable()
                                     .foregroundColor(.black)
                                     .aspectRatio(contentMode: .fit)
@@ -135,15 +145,17 @@ struct ContentView: View {
 
 enum Tab: String, CaseIterable {
     case Home = "house"
-    case Store = "storefront"
+    case Save = "bookmark"
     case Calendar = "calendar"
+    case Add = "plus.circle"
     case Profile = "person"
     
     var iconName: String {
         switch self {
             case .Home: return "house"
-            case .Store: return "save" // Custom icon for the store
+            case .Save: return "bookmark" // Custom icon for the store
             case .Calendar: return "calendar"
+            case .Add: return "plus.circle"
             case .Profile: return "person"
         }
     }
@@ -152,8 +164,9 @@ enum Tab: String, CaseIterable {
     var TabName: String {
         switch self {
             case .Home: return "Home"
-            case .Store: return "Store"
-        case .Calendar: return "calendar"
+            case .Save: return "Save"
+            case .Calendar: return "calendar"
+            case .Add: return "Add"
             case .Profile: return "Profile"
         }
     }
