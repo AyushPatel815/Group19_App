@@ -11,15 +11,16 @@ struct ProfilePageView: View {
     @Binding var meals: [Meal]  // Binding to the meals added by the user
     @Binding var savedMeals: [Meal]  // Binding to the saved meals list
     
-    // State variables for user details
     @State private var firstName: String = "John"
     @State private var lastName: String = "Doe"
     @State private var email: String = "john.doe@example.com"
     @State private var password: String = "******"
     
-    // State variables for edit mode
     @State private var isEditing: Bool = false
     @State private var showAlert = false
+    
+    // Track login state
+    @AppStorage("isLoggedIn") var isLoggedIn: Bool = true
 
     var body: some View {
         NavigationStack {
@@ -39,9 +40,8 @@ struct ProfilePageView: View {
                             .padding(.top, 50)  // Keep the padding only for the profile image alignment
                     }
                 }
-                .ignoresSafeArea(edges: .top)  // This ensures the yellow background goes to the top without space
+                .ignoresSafeArea(edges: .top)
 
-                // Scrollable content starts right after the header
                 ScrollView {
                     VStack(alignment: .leading, spacing: 30) {
                         // User Information Section
@@ -51,14 +51,13 @@ struct ProfilePageView: View {
                                     .font(.headline)
                                 Spacer()
                                 Button(action: {
-                                    isEditing.toggle()  // Toggle edit mode
+                                    isEditing.toggle()
                                 }) {
                                     Text(isEditing ? "Done" : "Edit")
                                         .font(.subheadline)
                                         .foregroundColor(.blue)
                                 }
                             }
-                            
                             AccountDetailField(title: "First Name", value: $firstName, isEditable: isEditing)
                             AccountDetailField(title: "Last Name", value: $lastName, isEditable: isEditing)
                             AccountDetailField(title: "Email", value: $email, isEditable: isEditing)
@@ -108,7 +107,6 @@ struct ProfilePageView: View {
                                                             .frame(width: 100, height: 100)
                                                     }
                                                 } else {
-                                                    // Placeholder if no image is available
                                                     Rectangle()
                                                         .fill(Color.gray.opacity(0.3))
                                                         .frame(width: 100, height: 100)
@@ -116,7 +114,6 @@ struct ProfilePageView: View {
                                                         .overlay(Text("No Image").foregroundColor(.gray))
                                                 }
                                                 
-                                                // Meal name and delete button
                                                 VStack(alignment: .leading) {
                                                     Text(meal.strMeal)
                                                         .font(.headline)
@@ -127,7 +124,6 @@ struct ProfilePageView: View {
                                                 }
                                                 Spacer()
                                                 
-                                                // Delete button
                                                 Button(action: {
                                                     deleteMeal(meal)
                                                 }) {
@@ -163,36 +159,35 @@ struct ProfilePageView: View {
                         .padding(.horizontal)
                         .alert("Are you sure you want to sign out?", isPresented: $showAlert) {
                             Button("Yes", role: .destructive) {
-                                // Sign out logic goes here
+                                // Set isLoggedIn to false and return to LoginView
+                                isLoggedIn = false
                             }
                             Button("Cancel", role: .cancel) {}
                         }
-                        .padding(.bottom,75)
+                        .padding(.bottom, 75)
                     }
                     .padding(.top, 20)
-                }.padding(.bottom,75)
-                    .padding(.top,-60)
+                }
+                .padding(.bottom, 50)
+                .padding(.top, -60)
             }
         }
     }
     
-    // Function to delete a meal from both meals and savedMeals
     func deleteMeal(_ meal: Meal) {
-        // Remove the meal from the meals list
         if let index = meals.firstIndex(where: { $0.idMeal == meal.idMeal }) {
             meals.remove(at: index)
         }
         
-        // Remove the meal from the saved meals list
         if let savedIndex = savedMeals.firstIndex(where: { $0.idMeal == meal.idMeal }) {
             savedMeals.remove(at: savedIndex)
         }
         
-        // Persist changes after deletion
         MealService().saveMeals(meals)
         MealService().saveMeals(savedMeals)
     }
 }
+
 
 // Helper view to create account details fields
 struct AccountDetailField: View {

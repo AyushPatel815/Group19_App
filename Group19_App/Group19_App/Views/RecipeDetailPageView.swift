@@ -299,6 +299,7 @@ struct RecipeDetailPageView: View {
                 }
                 .padding() // Padding for content within the scroll view
             }
+            .padding(.bottom,40)
         }
         .navigationBarItems(leading: backButton)
         .navigationBarBackButtonHidden()
