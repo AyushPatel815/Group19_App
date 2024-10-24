@@ -1,5 +1,10 @@
-// ProfileView.swift
-// Group19_App
+//
+//  ProfilePageView.swift
+//  Group19_App
+//
+//  Created by Ayush Patel on 10/22/24.
+//
+
 
 import SwiftUI
 
@@ -30,28 +35,28 @@ struct BottomRoundedShape: Shape {
     }
 }
 
-struct ProfileView: View {
+struct ProfilePageView: View {
     var body: some View {
         NavigationStack { // Wrap in NavigationStack
             VStack {
                 ZStack {
                     // Custom shape with only bottom corners rounded
                     BottomRoundedShape(cornerRadius: 80)  // Adjust corner radius here
-                        .fill(LinearGradient(gradient: Gradient(colors: [.orange, .yellow]), startPoint: .topLeading, endPoint: .bottomTrailing))
-                        .frame(height: 210)
+                        .fill(LinearGradient(gradient: Gradient(colors: [.yellow, .orange]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .frame(height: 180)
 
                     VStack {
                         HStack {
                             Spacer()
                             
                             // NavigationLink to the SettingsView
-                            NavigationLink(destination: SettingsView()) {
-                                Image(systemName: "gearshape.fill") // Settings icon
-                                    .font(.system(size: 25))
-                                    .foregroundColor(.white)
-                                    .padding(.trailing, 30)
-                                    .padding(.top, 40)
-                            }
+//                            NavigationLink(destination: SettingsView()) {
+//                                Image(systemName: "gearshape.fill") // Settings icon
+//                                    .font(.system(size: 25))
+//                                    .foregroundColor(.white)
+//                                    .padding(.trailing, 30)
+//                                    .padding(.top, 40)
+//                            }
 
                         }
                         
@@ -60,7 +65,7 @@ struct ProfileView: View {
                             .resizable()
                             .frame(width: 100, height: 100)
                             .foregroundColor(.white)
-                            .padding(.top, 0)  // Adjust padding to match design
+                            .padding(.top,50)  // Adjust padding to match design
                     }
                 }
                 .edgesIgnoringSafeArea(.top)
@@ -165,5 +170,6 @@ struct SettingButton: View {
 }
 
 #Preview {
-    ProfileView()
+    ProfilePageView()
 }
+

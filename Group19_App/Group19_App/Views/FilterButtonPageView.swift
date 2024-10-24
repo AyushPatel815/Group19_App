@@ -10,6 +10,7 @@ import SwiftUI
 struct FilterButtonPageView: View {
     @Binding var meals: [Meal]        // Meals list passed as a binding to apply filtering
     @Binding var filteredMeals: [Meal] // List of filtered meals passed as a binding
+    @State private var filteredSavedMeals: [Meal] = []
     @Binding var selectedCategory: String
     @Binding var selectedArea: String
     @Binding var selectedTag: String

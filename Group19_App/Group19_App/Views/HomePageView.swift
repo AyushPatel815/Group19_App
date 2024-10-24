@@ -8,10 +8,11 @@
 import SwiftUI
 
 struct HomePageView: View {
-    @State private var searchText: String = ""
-    @State private var meals: [Meal] = []
-    @State private var filteredMeals: [Meal] = []
+    @Binding var meals: [Meal]  // Meals is now a binding from the parent view
     @Binding var savedMeals: [Meal]
+    
+    @State private var searchText: String = ""
+    @State private var filteredMeals: [Meal] = []
     
     // State variables for selected filter options
     @State private var selectedCategory: String = "All"
@@ -25,20 +26,19 @@ struct HomePageView: View {
         NavigationStack {
             VStack {
                 ZStack {
-                    
-                        LinearGradient(
-                            gradient: Gradient(colors: [.yellow, .orange]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        
+                    LinearGradient(
+                        gradient: Gradient(colors: [.yellow, .orange]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
                     )
-                        .edgesIgnoringSafeArea(.top)
+                    .edgesIgnoringSafeArea(.top)
 
                     HStack {
                         Image(.appLogo)
                             .resizable()
                             .scaledToFit()
                             .frame(width: 100, height: 100)
+                        
                         // Search bar
                         TextField("Enter dish name...", text: $searchText, onCommit: {
                             applySearchFilter()
@@ -48,7 +48,6 @@ struct HomePageView: View {
                         .background(Color.white)
                         .cornerRadius(8)
                         .shadow(radius: 2)
-//                        .padding(.leading, 10)
 
                         // Filter button with NavigationLink to filter page
                         NavigationLink(destination: FilterButtonPageView(
@@ -125,20 +124,24 @@ struct HomePageView: View {
                     Spacer()
                         .frame(height: 100)
                 }
-//                .padding(.bottom, 110) // Add padding at the bottom to ensure clear visibility
             }
             .ignoresSafeArea()
             .onAppear {
                 if !isDataLoaded {
                     Task {
-                        await loadData()  // Load data only once, to avoid refresh after returning from the filter page
+                        await loadData()
                         isDataLoaded = true
                     }
+                } else {
+                    applyFilters()
+                    applySearchFilter()
+                    
                 }
             }
         }
     }
-
+    
+    
     // Function to load data using MealService
     func loadData() async {
         do {
@@ -153,6 +156,7 @@ struct HomePageView: View {
             print("Error fetching meals: \(error)")
         }
     }
+
 
     // Function to filter meals based on search text
     func applySearchFilter() {
@@ -192,5 +196,12 @@ struct HomePageView: View {
 }
 
 #Preview {
-    HomePageView(savedMeals: .constant([]))
+    HomePageView(meals: .constant([]), savedMeals: .constant([]))
 }
+
+
+
+
+
+
+

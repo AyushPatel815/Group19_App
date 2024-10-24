@@ -150,21 +150,33 @@ struct RecipeEntry: View {
                     // Wrap meal entry inside a NavigationLink to navigate to RecipeDetailPageView
                     NavigationLink(destination: RecipeDetailPageView(meal: meal)) {
                         HStack {
-                            // Image Slider on the left
-                            TabView {
-                                if let imageUrl = URL(string: meal.strMealThumb) {
-                                    AsyncImage(url: imageUrl) { image in
-                                        image
-                                            .resizable()
-                                            .scaledToFit()
-                                    } placeholder: {
-                                        ProgressView()
-                                    }
+                            // Display user-uploaded image if available
+                            if let imageData = meal.imagesData?.first, let uiImage = UIImage(data: imageData) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 120, height: 120)
+                                    .cornerRadius(10)
+                            } else if let imageUrl = URL(string: meal.strMealThumb), !meal.strMealThumb.isEmpty {
+                                // If no uploaded image, use the meal thumbnail from API
+                                AsyncImage(url: imageUrl) { image in
+                                    image
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 120, height: 120)
+                                        .cornerRadius(10)
+                                } placeholder: {
+                                    ProgressView()
+                                        .frame(width: 120, height: 120)
                                 }
+                            } else {
+                                // Placeholder if no image is available
+                                Rectangle()
+                                    .fill(Color.gray.opacity(0.3))
+                                    .frame(width: 120, height: 120)
+                                    .cornerRadius(10)
+                                    .overlay(Text("No Image").foregroundColor(.gray))
                             }
-                            .frame(width: 120, height: 120)
-                            .tabViewStyle(PageTabViewStyle())
-                            .cornerRadius(10)
 
                             // Dish Name on the right
                             Text(meal.strMeal)
@@ -197,11 +209,10 @@ struct RecipeEntry: View {
                 }
             }
             .padding()
-            
         }
     }
 }
 
 #Preview {
-    RecipeEntry(meals: .constant([Meal(idMeal: "123", strMeal: "Test Meal", strMealThumb: "https://www.themealdb.com/images/media/meals/adxcbq1619787919.jpg")]), searchText: "", savedMeals: .constant([]))
+    RecipeEntry(meals: .constant([Meal(idMeal: "123", strMeal: "Test Meal", strMealThumb: "https://www.themealdb.com/images/media/meals/adxcbq1619787919.jpg", imagesData: nil)]), searchText: "", savedMeals: .constant([]))
 }

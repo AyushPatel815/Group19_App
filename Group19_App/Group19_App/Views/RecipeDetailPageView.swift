@@ -195,22 +195,42 @@ struct RecipeDetailPageView: View {
                 VStack(alignment: .leading) {
                     // Image and YouTube link slider
                     TabView {
-                        // Meal Image
-                        if let url = URL(string: meal.strMealThumb) {
+                        // Display all images if available
+                        if let imageDataArray = meal.imagesData, !imageDataArray.isEmpty {
+                            ForEach(Array(imageDataArray.enumerated()), id: \.offset) { index, imageData in
+                                if let uiImage = UIImage(data: imageData) {
+                                    Image(uiImage: uiImage)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(maxWidth: .infinity, maxHeight: 300)
+                                        .cornerRadius(10)
+                                        .padding()
+                                }
+                            }
+                        } else if let url = URL(string: meal.strMealThumb), !meal.strMealThumb.isEmpty {
+                            // Load from URL if no local images
                             AsyncImage(url: url) { image in
                                 image
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(width: .infinity, height: 300)
+                                    .frame(maxWidth: .infinity, maxHeight: 300)
                                     .cornerRadius(10)
                                     .padding()
                             } placeholder: {
                                 ProgressView()
                             }
+                        } else {
+                            // Placeholder for no image
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.3))
+                                .frame(maxWidth: .infinity, maxHeight: 300)
+                                .cornerRadius(10)
+                                .overlay(Text("No Image").foregroundColor(.gray))
+                                .padding()
                         }
 
-                        // YouTube Video in a WebView
-                        if let youtubeURL = URL(string: getYouTubeEmbedURL(youtubeLink: meal.strYoutube)) {
+                        // Conditionally show YouTube video if the link is provided
+                        if !meal.strYoutube.isEmpty, let youtubeURL = URL(string: getYouTubeEmbedURL(youtubeLink: meal.strYoutube)) {
                             WebView(url: youtubeURL)
                                 .frame(maxWidth: .infinity, maxHeight: 300)
                                 .cornerRadius(10)
@@ -294,7 +314,6 @@ struct RecipeDetailPageView: View {
                         .foregroundColor(.black)
                         .lineLimit(nil) // Allow unlimited lines
                         .multilineTextAlignment(.center) // Center align the text
-//                        .frame(maxWidth: .infinity) // Ensure it takes the full available width
                 }
             }
         }
