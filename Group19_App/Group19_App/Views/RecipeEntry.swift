@@ -150,12 +150,12 @@ struct RecipeEntry: View {
                     // Wrap meal entry inside a NavigationLink to navigate to RecipeDetailPageView
                     NavigationLink(destination: RecipeDetailPageView(meal: meal)) {
                         HStack {
-                            // Display user-uploaded image if available
                             if let imageData = meal.imagesData?.first, let uiImage = UIImage(data: imageData) {
                                 Image(uiImage: uiImage)
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(width: 120, height: 120)
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 120, height: 200)
                                     .cornerRadius(10)
                             } else if let imageUrl = URL(string: meal.strMealThumb), !meal.strMealThumb.isEmpty {
                                 // If no uploaded image, use the meal thumbnail from API
@@ -195,9 +195,10 @@ struct RecipeEntry: View {
                                     savedMeals.append(meal)  // Add to saved meals if not saved
                                 }
                             }) {
-                                Image(savedMeals.contains(where: { $0.idMeal == meal.idMeal }) ? "saveFill" : "save")
+                                Image(systemName: savedMeals.contains(where: { $0.idMeal == meal.idMeal }) ? "bookmark.fill" : "bookmark")
                                     .resizable()
-                                    .frame(width: 24, height: 24)
+                                    .foregroundColor(.black)
+                                    .frame(width: 18, height: 30)
                                     .padding()
                             }
                         }

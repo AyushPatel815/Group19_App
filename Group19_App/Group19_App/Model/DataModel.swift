@@ -37,6 +37,9 @@ struct Meal: Codable {
         return nil
     }
 
+    // New property to indicate whether the recipe is user-added or from API
+    var isUserAdded: Bool = false
+
     init(
         idMeal: String = UUID().uuidString,
         strMeal: String = "Sample Meal",
@@ -50,7 +53,8 @@ struct Meal: Codable {
         strIngredients: [String] = [],
         strMeasures: [String] = [],
         imagesData: [Data]? = nil,
-        videoURLs: [URL]? = nil
+        videoURLs: [URL]? = nil,
+        isUserAdded: Bool = false // Mark recipes as user-added when initialized manually
     ) {
         self.idMeal = idMeal
         self.strMeal = strMeal
@@ -65,8 +69,8 @@ struct Meal: Codable {
         self.strMeasures = strMeasures
         self.imagesData = imagesData
         self.videoURLs = videoURLs
+        self.isUserAdded = isUserAdded
     }
-
 
     // CodingKeys to dynamically decode ingredients and measures
     enum CodingKeys: String, CodingKey {
@@ -138,6 +142,6 @@ struct Meal: Codable {
 }
 
 // Define a delegate protocol to handle saving the recipe
-protocol RecipeDelegate {
+protocol RecipeDelegate: AnyObject {
     func didAddRecipe(recipe: Meal)  // Notify the delegate when a recipe is added
 }

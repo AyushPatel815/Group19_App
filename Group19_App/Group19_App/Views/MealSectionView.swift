@@ -227,6 +227,7 @@ struct EditSpecificNoteView: View {
             .padding()
         }
         .padding()
+        .padding(.bottom,75)
     }
 }
 

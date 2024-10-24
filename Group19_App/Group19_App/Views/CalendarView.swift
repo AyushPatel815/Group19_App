@@ -75,6 +75,7 @@ struct CalendarView: View {
                         )
                     }
                     .padding(.top)
+                    .padding(.bottom,45)
                 } else {
                     Text("No meals planned for \(formattedDate(currentDate))")
                         .font(.title2)

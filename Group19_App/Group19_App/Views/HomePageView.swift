@@ -134,7 +134,7 @@ struct HomePageView: View {
                     }
                 } else {
                     applyFilters()
-                    applySearchFilter()
+//                    applySearchFilter()
                     
                 }
             }
@@ -198,10 +198,3 @@ struct HomePageView: View {
 #Preview {
     HomePageView(meals: .constant([]), savedMeals: .constant([]))
 }
-
-
-
-
-
-
-
