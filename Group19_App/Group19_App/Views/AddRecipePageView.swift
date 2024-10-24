@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct AddRecipePageView: View {
-    @State private var selectedImages: [UIImage] = []  // Array to hold multiple selected images
-    @State private var selectedVideoURLs: [URL] = []   // Array to hold multiple selected video URLs
-    @State private var showImagePicker = false         // Boolean to show image picker
-    @State private var showVideoPicker = false         // Boolean to show video picker
+    @State private var selectedImages: [UIImage] = []
+    @State private var selectedVideoURLs: [URL] = []
+    @State private var showImagePicker = false
+    @State private var showVideoPicker = false
     
     // Variables to store user input
     @State private var ingredients: [String] = [""]
@@ -25,8 +25,8 @@ struct AddRecipePageView: View {
     // Alert and validation
     @State private var showAlert = false
     @State private var showValidationError = false
-    @Environment(\.dismiss) var dismiss // For dismissing the view
-    @Binding var meals: [Meal]  // Use meals binding from the homepage, instead of savedMeals
+    @Environment(\.dismiss) var dismiss
+    @Binding var meals: [Meal]
 
 
     var body: some View {
@@ -256,8 +256,10 @@ struct AddRecipePageView: View {
     }
 
     // Post the recipe and save to the meals list
+    // Inside the postRecipe function in AddRecipePageView
     func postRecipe() {
         let newMeal = Meal(
+            idMeal: UUID().uuidString,  // Generate a unique ID for user-added meals
             strMeal: strMeal,
             strCategory: strCategory,
             strArea: strArea,
@@ -267,11 +269,11 @@ struct AddRecipePageView: View {
             strIngredients: ingredients.filter { !$0.isEmpty },
             strMeasures: measures.filter { !$0.isEmpty },
             imagesData: selectedImages.map { $0.pngData()! },  // Save all images as Data
-            videoURLs: selectedVideoURLs  // Save all video URLs
+            isUserAdded: true  // Mark this meal as user-added
         )
         
-        // Add the new recipe to savedMeals and meals array
-        meals.append(newMeal)  // Ensure new recipe is added to the main meals array
+        // Add the new recipe to the meals array
+        meals.append(newMeal)
     }
 
     
@@ -280,8 +282,6 @@ struct AddRecipePageView: View {
         return !strMeal.isEmpty && !strCategory.isEmpty && !strArea.isEmpty && !strInstructions.isEmpty
     }
 }
-
-
 
 
 // Helper view to create input sections with a "+" icon, list items, and edit/delete functionality

@@ -84,13 +84,14 @@ struct SavedPageView: View {
     @Binding var savedMeals: [Meal]
     @Binding var meals: [Meal]
 
-    // State for search and filters
+    // State for search and filters specific to SavedPageView
     @State private var searchText: String = ""
     @State private var filteredSavedMeals: [Meal] = []
     
-    @State private var selectedCategory: String = "All"
-    @State private var selectedArea: String = "All"
-    @State private var selectedTag: String = "All"
+    // Separate filter states for SavedPageView
+    @State private var selectedCategorySaved: String = "All"
+    @State private var selectedAreaSaved: String = "All"
+    @State private var selectedTagSaved: String = "All"
     
     @State private var isDataLoaded = false
 
@@ -107,8 +108,7 @@ struct SavedPageView: View {
                     .edgesIgnoringSafeArea(.top)
 
                     HStack {
-                        
-                        // Search bar
+                        // Search bar for saved meals
                         TextField("Enter dish name...", text: $searchText)
                             .padding(10)
                             .frame(width: 350)
@@ -120,13 +120,13 @@ struct SavedPageView: View {
                                 applySearchFilter()  // Trigger search as user types
                             }
                         
-                        // Filter button with NavigationLink to filter page
+                        // Filter button for Saved Meals with NavigationLink to its own filter page
                         NavigationLink(destination: FilterButtonPageView(
                             meals: $meals,
                             filteredMeals: $filteredSavedMeals,
-                            selectedCategory: $selectedCategory,
-                            selectedArea: $selectedArea,
-                            selectedTag: $selectedTag,
+                            selectedCategory: $selectedCategorySaved, // Distinct filter states for saved meals
+                            selectedArea: $selectedAreaSaved,
+                            selectedTag: $selectedTagSaved,
                             onApply: applyFilters,
                             onClear: clearFilters
                         )) {
@@ -138,7 +138,6 @@ struct SavedPageView: View {
                                 .shadow(radius: 2)
                         }
                         .padding(.trailing, 10)
-
                     }
                     .padding(.top, 50)
                     .frame(maxWidth: .infinity)
@@ -207,7 +206,8 @@ struct SavedPageView: View {
                                         }) {
                                             Image(systemName: "bookmark.fill")
                                                 .resizable()
-                                                .frame(width: 24, height: 24)
+                                                .foregroundColor(.black)
+                                                .frame(width: 18, height: 30)
                                                 .padding()
                                         }
                                     }
@@ -223,15 +223,17 @@ struct SavedPageView: View {
                 }
                 .onAppear {
                     if !isDataLoaded {
-                        applySearchFilter()
+                        applyFilters()
+                        
                         isDataLoaded = true
                     }
                 }
-            }.ignoresSafeArea()
+            }
+            .ignoresSafeArea()
         }
     }
 
-    // Apply search filter
+    // Apply search filter for saved meals only
     func applySearchFilter() {
         if searchText.isEmpty {
             filteredSavedMeals = savedMeals
@@ -240,28 +242,28 @@ struct SavedPageView: View {
         }
     }
     
-    // Apply category/area/tag filters
+    // Apply filters for saved meals only
     func applyFilters() {
         filteredSavedMeals = savedMeals
         
-        if selectedCategory != "All" {
-            filteredSavedMeals = filteredSavedMeals.filter { $0.strCategory == selectedCategory }
+        if selectedCategorySaved != "All" {
+            filteredSavedMeals = filteredSavedMeals.filter { $0.strCategory == selectedCategorySaved }
         }
         
-        if selectedArea != "All" {
-            filteredSavedMeals = filteredSavedMeals.filter { $0.strArea == selectedArea }
+        if selectedAreaSaved != "All" {
+            filteredSavedMeals = filteredSavedMeals.filter { $0.strArea == selectedAreaSaved }
         }
         
-        if selectedTag != "All" {
-            filteredSavedMeals = filteredSavedMeals.filter { $0.strTags?.contains(selectedTag) == true }
+        if selectedTagSaved != "All" {
+            filteredSavedMeals = filteredSavedMeals.filter { $0.strTags?.contains(selectedTagSaved) == true }
         }
     }
 
-    // Clear filters
+    // Clear filters specific to Saved Meals
     func clearFilters() {
-        selectedCategory = "All"
-        selectedArea = "All"
-        selectedTag = "All"
+        selectedCategorySaved = "All"
+        selectedAreaSaved = "All"
+        selectedTagSaved = "All"
         searchText = ""
         filteredSavedMeals = savedMeals
     }

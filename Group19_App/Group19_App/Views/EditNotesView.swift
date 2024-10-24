@@ -100,5 +100,6 @@ struct EditNotesView: View {
         }
         .navigationTitle(isNewNote ? "Add Note" : "Edit Note")  // Dynamic title based on context
         .padding()
+        .padding(.bottom,75)
     }
 }
