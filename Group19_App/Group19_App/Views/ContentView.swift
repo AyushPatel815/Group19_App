@@ -8,25 +8,20 @@
 
 import SwiftUI
 
+import SwiftUI
+
+import SwiftUI
+
 struct ContentView: View {
     @State var selectedTab: Tab = .Home
     @State private var savedMeals: [Meal] = []
     @State private var meals: [Meal] = []
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
 
-
-    init() {
-        UserDefaults.standard.set(false, forKey: "isLoggedIn")
-        UITabBar.appearance().isHidden = true
-    }
-    
     @Namespace var animation
-    
+
     var body: some View {
-//        Text("Is Logged In: \(isLoggedIn.description)")
-
         if isLoggedIn {
-
             mainContentView
         } else {
             LoginView()
@@ -65,6 +60,8 @@ struct ContentView: View {
         .padding(.bottom)
         .ignoresSafeArea(.all, edges: .bottom)
     }
+
+
     
     func TabButton(tab: Tab) -> some View {
         GeometryReader { proxy in
@@ -133,6 +130,7 @@ struct ContentView: View {
         .frame(height: 20)
     }
 }
+
 
 #Preview {
     ContentView()

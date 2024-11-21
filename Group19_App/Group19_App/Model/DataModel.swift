@@ -14,7 +14,7 @@ struct MealsResponse: Codable {
 }
 
 // Meal struct with dynamic ingredients and measures
-struct Meal: Codable {
+struct Meal: Codable, Equatable {
     let idMeal: String
     let strMeal: String
     let strDrinkAlternate: String?

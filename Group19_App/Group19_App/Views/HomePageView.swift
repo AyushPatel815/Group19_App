@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
+import FirebaseAuth
 
 struct HomePageView: View {
     @Binding var meals: [Meal]  // Meals is now a binding from the parent view
@@ -106,7 +108,7 @@ struct HomePageView: View {
                         }
 
                         // Updated RecipeEntry with Navigation, showing filtered meals
-                        RecipeEntry(meals: $filteredMeals, searchText: searchText, savedMeals: $savedMeals)
+                        RecipeEntry(meals: $filteredMeals, searchText: searchText, savedMeals: $savedMeals, onSave: saveRecipe)
 
                         // Add Clear Filter button after the filtered meals
                         if selectedCategory != "All" || selectedArea != "All" || selectedTag != "All" || !searchText.isEmpty {
@@ -130,8 +132,24 @@ struct HomePageView: View {
                 if !isDataLoaded {
                     Task {
                         await loadData()
+                        await fetchSavedRecipes()
+//                        await mergeAndSortRecipes()
+                        FirestoreHelper.shared.listenForAllRecipes(existingRecipes: meals) { newRecipes in
+                                        DispatchQueue.main.async {
+                                            meals.append(contentsOf: newRecipes)
+                                            filteredMeals = meals // Update the filtered list for display
+                                        }
+                                    }
                         isDataLoaded = true
                     }
+                    
+                    // Real-time updates for all user recipes
+//                            FirestoreHelper.shared.listenForAllRecipes { recipes in
+//                                DispatchQueue.main.async {
+//                                    meals = (meals.filter { !$0.isUserAdded } + recipes).sorted { $0.strMeal < $1.strMeal }
+//                                    filteredMeals = meals
+//                                }
+//                            }
                 } else {
                     applyFilters()
 //                    applySearchFilter()
@@ -141,6 +159,38 @@ struct HomePageView: View {
         }
     }
     
+    
+    // Function to fetch and merge recipes
+    func mergeAndSortRecipes() async {
+        do {
+            let apiMeals = try await MealService().fetchAllMeals()
+            var allUserMeals: [Meal] = []
+
+            // Fetch all user recipes from Firestore
+            FirestoreHelper.shared.fetchAllUserRecipes { userMeals in
+                allUserMeals = userMeals
+
+                // Deduplicate recipes by `idMeal`
+                var uniqueMeals = [String: Meal]()
+                (apiMeals + allUserMeals).forEach { meal in
+                    uniqueMeals[meal.idMeal] = meal
+                }
+
+                // Convert back to an array and sort
+                meals = Array(uniqueMeals.values).sorted { $0.strMeal < $1.strMeal }
+
+                // Update filteredMeals for the UI
+                filteredMeals = meals
+
+                // Select random meals for the carousel
+                randomMeals = Array(meals.shuffled().prefix(5))
+            }
+        } catch {
+            print("Error merging recipes: \(error)")
+        }
+    }
+
+
     
     // Function to load data using MealService
     func loadData() async {
@@ -193,6 +243,44 @@ struct HomePageView: View {
         searchText = ""
         filteredMeals = meals // Reset the filtered meals to show all
     }
+    
+    
+    func fetchSavedRecipes() async {
+            guard let userID = Auth.auth().currentUser?.uid else { return }
+
+            let db = Firestore.firestore()
+            let recipesRef = db.collection("users").document(userID).collection("savedRecipes")
+
+            do {
+                let snapshot = try await recipesRef.getDocuments()
+                let fetchedMeals = snapshot.documents.compactMap { document -> Meal? in
+                    try? document.data(as: Meal.self)
+                }
+                savedMeals = fetchedMeals
+            } catch {
+                print("Error fetching saved recipes: \(error)")
+            }
+        }
+    
+    func saveRecipe(_ meal: Meal) {
+            guard let userID = Auth.auth().currentUser?.uid else { return }
+
+            let db = Firestore.firestore()
+            let recipeRef = db.collection("users").document(userID).collection("savedRecipes").document(meal.idMeal)
+
+            do {
+                try recipeRef.setData(from: meal) { error in
+                    if let error = error {
+                        print("Failed to save recipe: \(error)")
+                    } else {
+                        savedMeals.append(meal)
+                    }
+                }
+            } catch {
+                print("Error encoding meal: \(error)")
+            }
+        }
+    
 }
 
 #Preview {
