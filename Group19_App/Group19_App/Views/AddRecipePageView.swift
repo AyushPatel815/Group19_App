@@ -591,6 +591,7 @@ struct AddRecipePageView: View {
         strInstructions = ""
         ingredients = [""]
         measures = [""]
+        strYoutube = ""
         selectedImages = []
     }
     
@@ -612,10 +613,19 @@ struct AddRecipePageView: View {
             strCategory: strCategory,
             strArea: strArea,
             strInstructions: strInstructions,
+            strYoutube: strYoutube,
             strIngredients: ingredients.filter { !$0.isEmpty },
             strMeasures: measures.filter { !$0.isEmpty },
             isUserAdded: true
         )
+        
+        for (index, image) in selectedImages.enumerated() {
+                if let imageData = image.jpegData(compressionQuality: 0.8) {
+                    print("Image \(index) size: \(imageData.count) bytes")
+                } else {
+                    print("Failed to convert image \(index) to JPEG data.")
+                }
+        }
 
         isUploading = true // Show a loading indicator
 

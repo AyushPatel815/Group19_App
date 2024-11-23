@@ -5,8 +5,6 @@
 //  Created by Ayush Patel on 10/20/24.
 //
 
-
-
 import SwiftUI
 import WebKit
 
@@ -15,7 +13,7 @@ struct WebView: UIViewRepresentable {
     let url: URL
 
     func makeUIView(context: Context) -> WKWebView {
-        return WKWebView()
+        WKWebView()
     }
 
     func updateUIView(_ uiView: WKWebView, context: Context) {
@@ -31,19 +29,24 @@ struct RecipeDetailPageView: View {
     var body: some View {
         VStack {
             ScrollView {
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 20) {
                     // Image and YouTube link slider
                     TabView {
                         // Display all images if available
-                        if let imageDataArray = meal.imagesData, !imageDataArray.isEmpty {
-                            ForEach(Array(imageDataArray.enumerated()), id: \.offset) { index, imageData in
-                                if let uiImage = UIImage(data: imageData) {
-                                    Image(uiImage: uiImage)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(maxWidth: .infinity, maxHeight: 300)
-                                        .cornerRadius(10)
-                                        .padding()
+                        if let imageUrls = meal.imageUrls, !imageUrls.isEmpty {
+                            ForEach(imageUrls, id: \.self) { imageUrl in
+                                if let url = URL(string: imageUrl) {
+                                    AsyncImage(url: url) { image in
+                                        image
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(maxWidth: .infinity, maxHeight: 300)
+                                            .cornerRadius(10)
+                                            .padding()
+                                    } placeholder: {
+                                        ProgressView()
+                                            .frame(maxWidth: .infinity, maxHeight: 300)
+                                    }
                                 }
                             }
                         } else if let url = URL(string: meal.strMealThumb), !meal.strMealThumb.isEmpty {
@@ -57,6 +60,7 @@ struct RecipeDetailPageView: View {
                                     .padding()
                             } placeholder: {
                                 ProgressView()
+                                    .frame(maxWidth: .infinity, maxHeight: 300)
                             }
                         } else {
                             // Placeholder for no image
@@ -75,126 +79,145 @@ struct RecipeDetailPageView: View {
                                 .cornerRadius(10)
                                 .padding()
                         }
+//                        if !meal.strYoutube.isEmpty, let youtubeURL = URL(string: meal.strYoutube) {
+//                            WebView(url: youtubeURL)
+//                                .frame(maxWidth: .infinity, maxHeight: 300)
+//                                .cornerRadius(10)
+//                                .padding()
+//                        } else {
+//                            Text("No YouTube video available.")
+//                                .font(.subheadline)
+//                                .foregroundColor(.gray)
+//                        }
+
+
                     }
                     .frame(height: 300)
                     .tabViewStyle(PageTabViewStyle()) // Make it look like a slider
 
                     // Category and Area (Cuisine)
                     HStack {
-                        HStack {
-                            Text("Category:")
-                                .font(.custom("Avenir Next", size: 20))
-                                .fontWeight(.bold)
-                            Text("\(meal.strCategory)")
-                                .font(.custom("Avenir Next", size: 20))
-                        }
+                        Text("Category: \(meal.strCategory)")
+                            .font(.headline)
+                            .fontWeight(.bold)
+
                         Spacer()
 
-                        HStack {
-                            Text("Area:")
-                                .font(.custom("Avenir Next", size: 18))
-                                .fontWeight(.bold)
-                            Text("\(meal.strArea)")
-                                .font(.custom("Avenir Next", size: 18))
-                        }
+                        Text("Area: \(meal.strArea)")
+                            .font(.headline)
+                            .fontWeight(.bold)
                     }
-                    .padding(.bottom, 5)
+                    .padding(.vertical)
 
                     // Ingredients and Measures
-                    Text("Ingredients")
-                        .font(.custom("Avenir Next", size: 25))
-                        .fontWeight(.bold)
-                        .padding(.top, 5)
+                    if !meal.strIngredients.isEmpty {
+                        Text("Ingredients")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .padding(.vertical, 5)
 
-                    ForEach(0..<meal.strIngredients.count, id: \.self) { index in
-                        HStack {
-                            Text("•") // Adding the bullet point
-                            Text("\(meal.strMeasures[index])")
-                                .font(.custom("Avenir Next", size: 18))
-                            Text(meal.strIngredients[index])
-                                .font(.custom("Avenir Next", size: 18))
+                        ForEach(0..<meal.strIngredients.count, id: \.self) { index in
+                            HStack {
+                                Text("•")
+                                Text(meal.strMeasures[index])
+                                    .font(.body)
+                                Text(meal.strIngredients[index])
+                                    .font(.body)
+                            }
                         }
                     }
 
                     // Instructions
-                    Text("Instructions")
-                        .font(.custom("Avenir Next", size: 25))
-                        .fontWeight(.bold)
-                        .padding(.top, 10)
+                    if !meal.strInstructions.isEmpty {
+                        Text("Instructions")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .padding(.vertical, 10)
 
-                    Text(meal.strInstructions)
-                        .font(.custom("Avenir Next", size: 18))
-                        .padding(.top, 5)
+                        Text(meal.strInstructions)
+                            .font(.body)
+                            .padding(.vertical, 5)
+                    }
 
                     // Tags
-                    if let tags = meal.strTags {
+                    if let tags = meal.strTags, !tags.isEmpty {
                         Text("Tags: \(tags)")
-                            .font(.custom("Avenir Next", size: 14))
+                            .font(.subheadline)
                             .fontWeight(.bold)
-                            .padding(.top, 5)
+                            .padding(.vertical, 5)
                     }
-                    Spacer()
-                        .frame(height: 50)
+
+                    Spacer().frame(height: 50)
                 }
-                .padding() // Padding for content within the scroll view
+                .padding()
             }
-            .padding(.bottom,40)
         }
         .navigationBarItems(leading: backButton)
-        .navigationBarBackButtonHidden()
-        .navigationBarTitle(meal.strMeal, displayMode: .inline)
-        .toolbarBackground(Color.yellow, for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
+        .navigationBarBackButtonHidden(true)
+        .navigationTitle(meal.strMeal)
         .toolbar {
             ToolbarItem(placement: .principal) {
-                VStack {
-                    Text(meal.strMeal)
-                        .font(.custom("Avenir Next", size: 22))
-                        .fontWeight(.bold)
-                        .foregroundColor(.black)
-                        .lineLimit(nil) // Allow unlimited lines
-                        .multilineTextAlignment(.center) // Center align the text
-                }
+                Text(meal.strMeal)
+                    .font(.headline)
+                    .foregroundColor(.black)
             }
         }
     }
-    
+
     var backButton: some View {
         Button(action: {
-            presentationMode.wrappedValue.dismiss() // Dismiss the current view
+            presentationMode.wrappedValue.dismiss()
         }) {
             HStack {
                 Image(systemName: "chevron.left")
                     .foregroundColor(.blue)
-                    .bold()
                 Text("Back")
                     .foregroundColor(.blue)
-                    .bold()
             }
         }
     }
 
     // Function to convert the YouTube URL to an embeddable version
+//    func getYouTubeEmbedURL(youtubeLink: String) -> String {
+//        if youtubeLink.contains("youtube.com") || youtubeLink.contains("youtu.be") {
+//            if let videoID = youtubeLink.split(separator: "=").last {
+//                return "https://www.youtube.com/embed/\(videoID)"
+//            } else if let videoID = youtubeLink.split(separator: "/").last {
+//                return "https://www.youtube.com/embed/\(videoID)"
+//            }
+//        }
+//        return youtubeLink
+//    }
+    
     func getYouTubeEmbedURL(youtubeLink: String) -> String {
-        if let videoID = youtubeLink.components(separatedBy: "v=").last {
+        // Check if it's a standard YouTube link
+        if youtubeLink.contains("youtube.com/watch?v="),
+           let videoID = youtubeLink.split(separator: "=").last?.split(separator: "&").first {
             return "https://www.youtube.com/embed/\(videoID)"
         }
+        // Check if it's a shortened YouTube link (youtu.be)
+        else if youtubeLink.contains("youtu.be"),
+                let videoID = youtubeLink.split(separator: "/").last?.split(separator: "?").first {
+            return "https://www.youtube.com/embed/\(videoID)"
+        }
+        // Return the original link if it doesn't match the above formats
         return youtubeLink
     }
+
+
 }
 
 #Preview {
     RecipeDetailPageView(meal: Meal(
         idMeal: "52772",
         strMeal: "Spaghetti Carbonara",
-        strDrinkAlternate: nil,
         strCategory: "Pasta",
         strArea: "Italian",
         strInstructions: "Boil the spaghetti. Fry the pancetta. Beat the eggs and mix with cheese. Combine spaghetti, pancetta, and egg mixture. Serve immediately.",
         strMealThumb: "https://www.themealdb.com/images/media/meals/llcbn01574260722.jpg",
-        strTags: "Pasta,Comfort Food",
         strYoutube: "https://www.youtube.com/watch?v=3AAdKl1UYZs",
         strIngredients: ["Spaghetti", "Pancetta", "Eggs", "Parmesan Cheese", "Black Pepper"],
-        strMeasures: ["200g", "100g", "2", "50g", "to taste"]
+        strMeasures: ["200g", "100g", "2", "50g", "to taste"],
+        imageUrls: ["https://www.themealdb.com/images/media/meals/llcbn01574260722.jpg"]
     ))
 }

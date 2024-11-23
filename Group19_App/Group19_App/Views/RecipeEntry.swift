@@ -124,29 +124,22 @@ struct RecipeEntry: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                ForEach(filteredMeals, id: \.idMeal) { meal in
+                ForEach(filteredMeals) { meal in
+                    
                     // Wrap meal entry inside a NavigationLink to navigate to RecipeDetailPageView
                     NavigationLink(destination: RecipeDetailPageView(meal: meal)) {
                         HStack {
-                            if let imageData = meal.imagesData?.first, let uiImage = UIImage(data: imageData) {
-                                Image(uiImage: uiImage)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(width: 120, height: 200)
+                            // Display meal image with improved AsyncImage handling
+                            if let imageUrl = meal.imageUrls?.first, let url = URL(string: imageUrl) {
+                                CustomAsyncImage(url: url)
+                                    .frame(width: 120, height: 120)
                                     .cornerRadius(10)
+                                    
                             } else if let imageUrl = URL(string: meal.strMealThumb), !meal.strMealThumb.isEmpty {
-                                // If no uploaded image, use the meal thumbnail from API
-                                AsyncImage(url: imageUrl) { image in
-                                    image
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 120, height: 120)
-                                        .cornerRadius(10)
-                                } placeholder: {
-                                    ProgressView()
-                                        .frame(width: 120, height: 120)
-                                }
+                                CustomAsyncImage(url: imageUrl)
+                                    .frame(width: 120, height: 120)
+                                    .cornerRadius(10)
+                                    
                             } else {
                                 // Placeholder if no image is available
                                 Rectangle()
@@ -154,6 +147,7 @@ struct RecipeEntry: View {
                                     .frame(width: 120, height: 120)
                                     .cornerRadius(10)
                                     .overlay(Text("No Image").foregroundColor(.gray))
+                                    
                             }
 
                             // Dish Name on the right
@@ -187,9 +181,60 @@ struct RecipeEntry: View {
     }
 }
 
+/// Custom AsyncImage with enhanced error handling
+struct CustomAsyncImage: View {
+    let url: URL
+
+    @State private var uiImage: UIImage?
+    @State private var isLoading = true
+
+    var body: some View {
+        if let uiImage = uiImage {
+            Image(uiImage: uiImage)
+                .resizable()
+                .scaledToFit()
+        } else if isLoading {
+            ProgressView()
+                .frame(width: 120, height: 120)
+                .onAppear {
+                    loadImage()
+                }
+        } else {
+            Rectangle()
+                .fill(Color.gray.opacity(0.3))
+                .frame(width: 120, height: 120)
+                .cornerRadius(10)
+                .overlay(Text("No Image").foregroundColor(.gray))
+        }
+    }
+
+    private func loadImage() {
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            guard let data = data, let image = UIImage(data: data), error == nil else {
+                print("Failed to load image from URL: \(url) - Error: \(String(describing: error))")
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                }
+                return
+            }
+            DispatchQueue.main.async {
+                self.uiImage = image
+                self.isLoading = false
+            }
+        }.resume()
+    }
+}
+
+
+
 #Preview {
     RecipeEntry(
-        meals: .constant([Meal(idMeal: "123", strMeal: "Test Meal", strMealThumb: "https://www.themealdb.com/images/media/meals/adxcbq1619787919.jpg", imagesData: nil)]),
+        meals: .constant([Meal(
+            idMeal: "123",
+            strMeal: "Test Meal",
+            strMealThumb: "https://www.themealdb.com/images/media/meals/adxcbq1619787919.jpg",
+            imageUrls: ["https://firebasestorage.googleapis.com:443/v0/b/group19app-3bd2e.firebasestorage.app/o/users%2FecjGyChqk1P14Jmm0LnPmdB2rAu1%2Frecipes%2F87E58EF8-8A86-4130-8A95-2122CCDB6FA7%2F06AC4076-EE54-4A6F-9CE7-1A84CF960C12.jpg?alt=media&token=d164c75d-9d20-4423-bc2f-78f01d38081b"]
+        )]),
         searchText: "",
         savedMeals: .constant([]),
         onSave: { _ in }

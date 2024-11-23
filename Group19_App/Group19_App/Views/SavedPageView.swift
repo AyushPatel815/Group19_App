@@ -126,7 +126,6 @@ struct SavedPageView: View {
                 .onChange(of: savedMeals) { _ in
                     applyFilters()
                 }
-
             }
             .ignoresSafeArea()
         }
@@ -193,14 +192,21 @@ struct SavedPageView: View {
     @ViewBuilder
     private func savedMealRow(for meal: Meal) -> some View {
         HStack {
-            // Display meal image (first uploaded or thumbnail)
-            if let imageData = meal.imagesData?.first, let uiImage = UIImage(data: imageData) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 120, height: 120)
-                    .cornerRadius(10)
+            // Display meal image (from imageUrls or thumbnail)
+            if let imageUrl = meal.imageUrls?.first, let url = URL(string: imageUrl) {
+                // Use AsyncImage for URL loading
+                AsyncImage(url: url) { image in
+                    image
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 120, height: 120)
+                        .cornerRadius(10)
+                } placeholder: {
+                    ProgressView()
+                        .frame(width: 120, height: 120)
+                }
             } else if let imageUrl = URL(string: meal.strMealThumb), !meal.strMealThumb.isEmpty {
+                // Use the meal thumbnail as a fallback
                 AsyncImage(url: imageUrl) { image in
                     image
                         .resizable()
@@ -311,12 +317,39 @@ struct SavedPageView: View {
             }
 
             savedMeals = snapshot?.documents.compactMap { document in
-                try? document.data(as: Meal.self)
+                var meal = try? document.data(as: Meal.self)
+                if let imageUrls = document["images"] as? [String] {
+                    meal?.imageUrls = imageUrls
+                }
+                return meal
             } ?? []
             applyFilters()
         }
     }
 }
+
+
+//#Preview {
+//    SavedPageView(
+//        savedMeals: .constant([
+//            Meal(
+//                id: "123",
+//                idMeal: "123",
+//                strMeal: "Test Meal",
+//                strMealThumb: "https://www.themealdb.com/images/media/meals/adxcbq1619787919.jpg",
+//                strCategory: "Category",
+//                strArea: "Area",
+//                strInstructions: "Instructions",
+//                strYoutube: "",
+//                strIngredients: [],
+//                strMeasures: [],
+//                imageUrls: ["https://via.placeholder.com/150"]
+//            )
+//        ]),
+//        meals: .constant([])
+//    )
+//}
+
 
 
 #Preview {

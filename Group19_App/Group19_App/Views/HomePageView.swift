@@ -133,13 +133,13 @@ struct HomePageView: View {
                     Task {
                         await loadData()
                         await fetchSavedRecipes()
-//                        await mergeAndSortRecipes()
-                        FirestoreHelper.shared.listenForAllRecipes(existingRecipes: meals) { newRecipes in
-                                        DispatchQueue.main.async {
-                                            meals.append(contentsOf: newRecipes)
-                                            filteredMeals = meals // Update the filtered list for display
-                                        }
-                                    }
+                        await mergeAndSortRecipes()
+//                        FirestoreHelper.shared.listenForAllRecipes(existingRecipes: meals) { newRecipes in
+//                                        DispatchQueue.main.async {
+//                                            meals.append(contentsOf: newRecipes)
+//                                            filteredMeals = meals // Update the filtered list for display
+//                                        }
+//                                    }
                         isDataLoaded = true
                     }
                     
