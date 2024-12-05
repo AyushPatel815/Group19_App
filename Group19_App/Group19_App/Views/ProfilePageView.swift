@@ -223,7 +223,17 @@ struct ProfilePageView: View {
             }
             AccountDetailField(title: "First Name", value: $firstName, isEditable: isEditing)
             AccountDetailField(title: "Last Name", value: $lastName, isEditable: isEditing)
-            AccountDetailField(title: "Email", value: $email, isEditable: isEditing)
+            
+            // Display email as non-editable
+                    VStack(alignment: .leading) {
+                        Text("Email")
+                            .font(.headline)
+                            .foregroundColor(.gray)
+                        Text(email)
+                            .padding(10)
+                            .background(Color.gray.opacity(0.1))
+                            .cornerRadius(8)
+                    }
             
             if isChangingPassword {
                 Divider().padding(.vertical, 10)
