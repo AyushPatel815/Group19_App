@@ -20,6 +20,8 @@ struct HomePageView: View {
     @State private var selectedCategory: String = "All"
     @State private var selectedArea: String = "All"
     @State private var selectedTag: String = "All"
+    @State private var searchBarState: Bool = false // Tracks if the search bar is expanded
+    
     
     @State private var isDataLoaded = false
     @State private var randomMeals: [Meal] = []
@@ -36,46 +38,61 @@ struct HomePageView: View {
                     .edgesIgnoringSafeArea(.top)
 
                     HStack {
-                        Image(.appLogo)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 100, height: 100)
+                        if !searchBarState {
+                            Image(.appLogo)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 80, height: 80)
+                        }
+                        Spacer()
                         
                         // Search bar
-                        TextField("Enter dish name...", text: $searchText, onCommit: {
-                            applySearchFilter()
-                        })
-                        .padding(10)
-                        .frame(width: 250)
-                        .background(Color.white)
-                        .cornerRadius(8)
-                        .shadow(radius: 2)
+                        AnimatedSearchBar(searchtext: $searchText)
+                            .onChange(of: searchText) { _ in
+                                applySearchFilter()
+                            }
+                            .frame(maxWidth: .infinity)
 
-                        // Filter button with NavigationLink to filter page
-                        NavigationLink(destination: FilterButtonPageView(
-                            meals: $meals,
-                            filteredMeals: $filteredMeals,
-                            selectedCategory: $selectedCategory,
-                            selectedArea: $selectedArea,
-                            selectedTag: $selectedTag,
-                            onApply: applyFilters,
-                            onClear: clearFilters
-                        )) {
-                            Image(systemName: "slider.horizontal.3")
-                                .font(.title2)
-                                .padding(9)
-                                .background(Color.white)
-                                .cornerRadius(8)
-                                .shadow(radius: 2)
+                        Spacer(minLength: searchBarState ? 0 : -50) // Adjust spacing dynamically
+
+                        if !searchBarState {
+                            
+                            // Filter button with NavigationLink to filter page
+                            NavigationLink(destination: FilterButtonPageView(
+                                meals: $meals,
+                                filteredMeals: $filteredMeals,
+                                selectedCategory: $selectedCategory,
+                                selectedArea: $selectedArea,
+                                selectedTag: $selectedTag,
+                                onApply: applyFilters,
+                                onClear: clearFilters
+                            )) {
+                                Image(systemName: "slider.horizontal.3")
+                                    .font(.title)
+                                    .foregroundStyle(.black)
+                                    .padding(5)
+                                    .cornerRadius(8)
+                                    .shadow(radius: 2)
+                            }
+                            
+                            NavigationLink(destination: AddRecipePageView(meals: $meals)) {
+                                Image(systemName: "plus.circle")
+                                    .font(.title)
+                                    .foregroundStyle(.black)
+                                    .padding(5)
+                                    .cornerRadius(8)
+                                    .shadow(radius: 2)
+                            }
                         }
-                        .padding(.trailing, 10)
+                        
+                
                     }
                     .padding(.top, 50)
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color.white.opacity(0))
                 }
-                .frame(height: 150)
+                .frame(height: 130)
                 .cornerRadius(20)
                 
                 ScrollView {
@@ -133,28 +150,34 @@ struct HomePageView: View {
                     Task {
                         await loadData()
                         await fetchSavedRecipes()
-                        await mergeAndSortRecipes()
-//                        FirestoreHelper.shared.listenForAllRecipes(existingRecipes: meals) { newRecipes in
-//                                        DispatchQueue.main.async {
-//                                            meals.append(contentsOf: newRecipes)
-//                                            filteredMeals = meals // Update the filtered list for display
-//                                        }
-//                                    }
+//                        await mergeAndSortRecipes()
                         isDataLoaded = true
                     }
                     
-                    // Real-time updates for all user recipes
-//                            FirestoreHelper.shared.listenForAllRecipes { recipes in
-//                                DispatchQueue.main.async {
-//                                    meals = (meals.filter { !$0.isUserAdded } + recipes).sorted { $0.strMeal < $1.strMeal }
-//                                    filteredMeals = meals
-//                                }
-//                            }
+                    
+                    FirestoreHelper.shared.listenForUserRecipes { updatedRecipes in
+                        Task {
+                            await mergeAndSortRecipes() // Refresh the data when new recipes are added
+                        }
+                    }
+
+                    
                 } else {
                     applyFilters()
 //                    applySearchFilter()
                     
                 }
+                
+            }
+            
+            .onChange(of: selectedCategory) { _ in
+                applyFilters()
+            }
+            .onChange(of: selectedArea) { _ in
+                applyFilters()
+            }
+            .onChange(of: selectedTag) { _ in
+                applyFilters()
             }
         }
     }
@@ -190,7 +213,6 @@ struct HomePageView: View {
         }
     }
 
-
     
     // Function to load data using MealService
     func loadData() async {
@@ -216,24 +238,17 @@ struct HomePageView: View {
             filteredMeals = meals.filter { $0.strMeal.localizedCaseInsensitiveContains(searchText) }
         }
     }
-
-    // Function to apply filters and update filteredMeals
+    
     func applyFilters() {
-        // Apply filtering logic based on the selected category, area, and tags
-        filteredMeals = meals
-        
-        if selectedCategory != "All" {
-            filteredMeals = filteredMeals.filter { $0.strCategory == selectedCategory }
+            filteredMeals = meals.filter { meal in
+                let categoryMatch = selectedCategory == "All" || meal.strCategory == selectedCategory
+                let areaMatch = selectedArea == "All" || meal.strArea == selectedArea
+                let tagMatch = selectedTag == "All" || (meal.strTags?.contains(selectedTag) ?? false)
+                
+                return categoryMatch && areaMatch && tagMatch
+            }
         }
-        
-        if selectedArea != "All" {
-            filteredMeals = filteredMeals.filter { $0.strArea == selectedArea }
-        }
-        
-        if selectedTag != "All" {
-            filteredMeals = filteredMeals.filter { $0.strTags?.contains(selectedTag) == true }
-        }
-    }
+
 
     // Function to clear all filters and reload all meals
     func clearFilters() {
@@ -244,7 +259,7 @@ struct HomePageView: View {
         filteredMeals = meals // Reset the filtered meals to show all
     }
     
-    
+
     func fetchSavedRecipes() async {
             guard let userID = Auth.auth().currentUser?.uid else { return }
 
@@ -261,7 +276,7 @@ struct HomePageView: View {
                 print("Error fetching saved recipes: \(error)")
             }
         }
-    
+
     func saveRecipe(_ meal: Meal) {
             guard let userID = Auth.auth().currentUser?.uid else { return }
 

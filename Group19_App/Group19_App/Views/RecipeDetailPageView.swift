@@ -27,7 +27,7 @@ struct RecipeDetailPageView: View {
     @Environment(\.presentationMode) var presentationMode
 
     var body: some View {
-        VStack {
+        VStack(spacing:0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     // Image and YouTube link slider
@@ -154,14 +154,24 @@ struct RecipeDetailPageView: View {
         }
         .navigationBarItems(leading: backButton)
         .navigationBarBackButtonHidden(true)
-        .navigationTitle(meal.strMeal)
+        .navigationBarTitleDisplayMode(.inline) // Ensure compact navigation bar
+        .toolbarBackground(
+            LinearGradient(
+                gradient: Gradient(colors: [.yellow, .orange]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
+            for: .navigationBar
+        )
+        .toolbarBackground(.visible, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text(meal.strMeal)
                     .font(.headline)
-                    .foregroundColor(.black)
+                    .foregroundColor(.black) // Adjust text color for better contrast
             }
         }
+        
     }
 
     var backButton: some View {
@@ -177,17 +187,6 @@ struct RecipeDetailPageView: View {
         }
     }
 
-    // Function to convert the YouTube URL to an embeddable version
-//    func getYouTubeEmbedURL(youtubeLink: String) -> String {
-//        if youtubeLink.contains("youtube.com") || youtubeLink.contains("youtu.be") {
-//            if let videoID = youtubeLink.split(separator: "=").last {
-//                return "https://www.youtube.com/embed/\(videoID)"
-//            } else if let videoID = youtubeLink.split(separator: "/").last {
-//                return "https://www.youtube.com/embed/\(videoID)"
-//            }
-//        }
-//        return youtubeLink
-//    }
     
     func getYouTubeEmbedURL(youtubeLink: String) -> String {
         // Check if it's a standard YouTube link

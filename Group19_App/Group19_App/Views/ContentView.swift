@@ -8,24 +8,83 @@
 
 import SwiftUI
 
-import SwiftUI
-
-import SwiftUI
 
 struct ContentView: View {
     @State var selectedTab: Tab = .Home
     @State private var savedMeals: [Meal] = []
     @State private var meals: [Meal] = []
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
+    @State private var isSplashScreenActive = true // State to handle splash screen visibility
+    @State private var showLoginView = false // Tracks the start of the login transition
+
+
 
     @Namespace var animation
 
     var body: some View {
-        if isLoggedIn {
-            mainContentView
-        } else {
-            LoginView()
+        Group {
+            if isSplashScreenActive {
+                ZStack {
+                    LinearGradient(
+                        gradient: Gradient(colors: [.orange, .yellow]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    .ignoresSafeArea() // Extend the gradient to cover the entire screen
+                    VStack {
+                        Spacer()
+                        // Logo
+                        Image("appLogo")
+                            .resizable()
+                            .frame(width: 250, height: 220)
+                        
+                        // Splash Screen Title
+                        if !showLoginView {
+                            Text("Welcome to Food Palace!!")
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .foregroundColor(.black)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 40)
+                                .transition(.opacity) // Fade out text
+                        }
+                        
+                        Spacer()
+                            .frame(height: 400)
+                    }
+                    
+                
+                }
+            } else {
+                if isLoggedIn {
+                    mainContentView
+                        .transition(.move(edge: .trailing)) // Add smooth transition to main content
+                } else {
+                    LoginView()
+//                        .transition(.move(edge: .trailing)) // Slide LoginView from the right
+                        .animation(.easeInOut(duration: 1.0), value: showLoginView)
+
+                }
+            }
         }
+        .animation(.easeInOut(duration: 1.0), value: isSplashScreenActive)
+        .animation(.easeInOut(duration: 0.8), value: showLoginView)
+        .onAppear {
+            // Trigger the first animation (fade out text)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                withAnimation {
+                    showLoginView = true // Text fades out
+                }
+
+                // Trigger the second animation (switch to login view)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    withAnimation {
+                        isSplashScreenActive = false // Splash screen transitions out
+                    }
+                }
+            }
+        }
+
     }
     
     var mainContentView: some View {
@@ -39,9 +98,9 @@ struct ContentView: View {
             CalendarView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .tag(Tab.Calendar)
-            AddRecipePageView(meals: $meals)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .tag(Tab.Add)
+//            AddRecipePageView(meals: $meals)
+//                .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                .tag(Tab.Add)
             ProfilePageView(meals: $meals, savedMeals: $savedMeals)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .tag(Tab.Profile)
@@ -138,17 +197,17 @@ struct ContentView: View {
 
 enum Tab: String, CaseIterable {
     case Home = "house"
-    case Save = "bookmark"
+    case Save = "suit.heart"
     case Calendar = "calendar"
-    case Add = "plus.circle"
+//    case Add = "plus.circle"
     case Profile = "person"
     
     var iconName: String {
         switch self {
             case .Home: return "house"
-            case .Save: return "bookmark"
+            case .Save: return "suit.heart"
             case .Calendar: return "calendar"
-            case .Add: return "plus.circle"
+//            case .Add: return "plus.circle"
             case .Profile: return "person"
         }
     }
@@ -156,9 +215,9 @@ enum Tab: String, CaseIterable {
     var TabName: String {
         switch self {
             case .Home: return "Home"
-            case .Save: return "Save"
+            case .Save: return "Favorite"
             case .Calendar: return "Calendar"
-            case .Add: return "Add"
+//            case .Add: return "Add"
             case .Profile: return "Profile"
         }
     }

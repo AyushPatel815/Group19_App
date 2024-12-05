@@ -25,8 +25,6 @@ struct Group19_AppApp: App {
     // register app delegate for Firebase setup
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var authState = AuthState() // Initialize AuthState
-    
-    
 
 
     var body: some Scene {

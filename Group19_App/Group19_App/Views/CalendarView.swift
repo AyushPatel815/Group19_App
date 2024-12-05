@@ -16,13 +16,14 @@ struct CalendarView: View {
 
     var body: some View {
         NavigationStack {
+            ScrollView {
             VStack {
                 // Current Month and Year
                 Text(currentMonthAndYear)
                     .font(.largeTitle)
                     .bold()
                     .padding()
-
+                
                 // Calendar Grid for the Days
                 LazyVGrid(columns: columns, spacing: 15) {
                     ForEach(weekdays, id: \.self) { day in
@@ -30,7 +31,7 @@ struct CalendarView: View {
                             .font(.title3)
                             .bold()
                     }
-
+                    
                     ForEach(daysInMonth(), id: \.self) { date in
                         DayCellView(
                             date: date,
@@ -43,7 +44,7 @@ struct CalendarView: View {
                     }
                 }
                 .padding()
-
+                
                 // Display the Meal Plan sections for Breakfast, Lunch, and Dinner
                 if let mealPlan = mealPlans[currentDate] {
                     ScrollView {
@@ -55,7 +56,7 @@ struct CalendarView: View {
                                 set: { mealPlans[currentDate]?.breakfast = $0 }
                             )
                         )
-
+                        
                         // Display Lunch Section
                         MealSectionView(
                             mealType: "Lunch",
@@ -64,7 +65,7 @@ struct CalendarView: View {
                                 set: { mealPlans[currentDate]?.lunch = $0 }
                             )
                         )
-
+                        
                         // Display Dinner Section
                         MealSectionView(
                             mealType: "Dinner",
@@ -80,7 +81,7 @@ struct CalendarView: View {
                     Text("No meals planned for \(formattedDate(currentDate))")
                         .font(.title2)
                         .padding(.top)
-
+                    
                     // Initialize the meal plan when needed
                     Button(action: {
                         mealPlans[currentDate] = MealPlan()  // Initialize meal plan for the selected date
@@ -93,10 +94,11 @@ struct CalendarView: View {
                             .cornerRadius(10)
                     }
                 }
-
+                
                 Spacer()
             }
             .navigationTitle("Meal Planner")
+        }
         }
     }
 

@@ -5,153 +5,6 @@
 //  Created by Joshua Hernandez on 10/24/24.
 //
 
-//import SwiftUI
-//
-//struct SignupView: View {
-//    @State private var firstName: String = ""
-//    @State private var lastName: String = ""
-//    @State private var email: String = ""
-//    @State private var password: String = ""
-//    @State private var confirmPassword: String = ""
-//    @State private var rememberMe: Bool = false
-//
-//    var body: some View {
-//        VStack {
-//            // Logo or image at the top
-//            Image("appLogo")
-//                .resizable()
-//                .frame(width: 80, height: 80)
-//                .padding(.bottom, 10)
-//            
-//            Text("Get Started!")
-//                .font(.largeTitle)
-//                .fontWeight(.bold)
-//                .padding(.bottom, 20)
-//            
-//            // First Name Field
-//            
-//            VStack(alignment: .leading){
-//                Text("First Name")
-//                    .fontWeight(.bold)
-//
-//                
-//                
-//                TextField("", text: $firstName)
-//                    .padding()
-//                    .background(Color.white)
-//                    .overlay(
-//                        RoundedRectangle(cornerRadius: 8)
-//                            .stroke(Color.gray, lineWidth: 1)
-//                        )
-//            }
-//            .padding(.horizontal)
-//            
-//            
-//            VStack(alignment: .leading){
-//                Text("Last Name")
-//                    .fontWeight(.bold)
-//
-//                
-//                
-//                TextField("", text: $firstName)
-//                    .padding()
-//                    .background(Color.white)
-//                    .overlay(
-//                        RoundedRectangle(cornerRadius: 8) 
-//                            .stroke(Color.gray, lineWidth: 1)
-//                    )
-//                    
-//                    
-//                
-//            }
-//            .padding(.horizontal)
-//            
-//            VStack(alignment: .leading){
-//                Text("Email")
-//                    .fontWeight(.bold)
-//                
-//                TextField("", text: $firstName)
-//                    .padding()
-//                    .background(Color.white)
-//                    .overlay(
-//                        RoundedRectangle(cornerRadius: 8)
-//                            .stroke(Color.gray, lineWidth: 1)
-//                        )
-//                
-//            }
-//            .padding(.horizontal)
-//            
-//            VStack(alignment: .leading){
-//                Text("Password")
-//                    .fontWeight(.bold)
-//                
-//                TextField("", text: $firstName)
-//                    .padding()
-//                    .background(Color.white)
-//                    .overlay(
-//                        RoundedRectangle(cornerRadius: 8)
-//                            .stroke(Color.gray, lineWidth: 1)
-//                        )
-//                
-//            }
-//            .padding(.horizontal)
-//            
-//            VStack(alignment: .leading){
-//                Text("Confirm Password")
-//                    .fontWeight(.bold)
-//                TextField("", text: $firstName)
-//                    .padding()
-//                    .background(Color.white)
-//                    .overlay(
-//                        RoundedRectangle(cornerRadius: 8)
-//                            .stroke(Color.gray, lineWidth: 1)
-//                        )
-//            }
-//            .padding(.horizontal)
-//            // Remember me toggle
-//            Toggle(isOn: $rememberMe) {
-//                Text("Remember me")
-//            }
-//            .padding(.horizontal)
-//            .padding(.bottom, 10)
-//            
-//            // Signup Button
-//            Button(action: {
-//                // Handle signup action
-//            }) {
-//                Text("Sign Up")
-//                    .font(.headline)
-//                    .foregroundColor(.white)
-//                    .frame(width:200)
-//                    .padding()
-//                    .background(Color(red: 220 / 255, green: 168 / 255, blue: 34 / 255))
-//                    .cornerRadius(10)
-//                    .padding(.horizontal)
-//                    .padding(.top, 10)
-//            }
-//            
-//            
-//            Spacer()
-//            
-////            Rectangle()
-////                .fill(Color(red: 220 / 255, green: 168 / 255, blue: 34 / 255)) // DCA822 RGB color
-////                .frame(height: 30) // Adjust the height as needed
-////                .edgesIgnoringSafeArea(.bottom)
-//        }
-//        .navigationTitle("")
-//        .navigationBarTitleDisplayMode(.inline)
-//        .background(Color.white)
-//        .ignoresSafeArea(.all, edges: .bottom)
-//    }
-//}
-//
-//
-//#Preview {
-//    SignupView()
-//}
-
-
-
 
 import SwiftUI
 import FirebaseAuth
@@ -285,12 +138,6 @@ struct SignupView: View {
             }
             .padding(.horizontal)
 
-            // Remember me toggle
-            Toggle(isOn: $rememberMe) {
-                Text("Remember me")
-            }
-            .padding(.horizontal)
-            .padding(.bottom, 10)
 
             // Error Message
             if let errorMessage = errorMessage {
@@ -302,7 +149,9 @@ struct SignupView: View {
 
             // Signup Button
             Button(action: {
-                handleSignup()
+//                handleSignup()
+                validateAndSignup()
+
             }) {
                 if isLoading {
                     ProgressView()
@@ -328,6 +177,47 @@ struct SignupView: View {
         .background(Color.white)
         .ignoresSafeArea(.all, edges: .bottom)
     }
+    
+    
+    // MARK: - Validation and Signup
+        private func validateAndSignup() {
+            guard !firstName.isEmpty, !lastName.isEmpty, !email.isEmpty, !password.isEmpty else {
+                errorMessage = "Please fill in all fields."
+                return
+            }
+
+            guard firstName.count <= 20 else {
+                errorMessage = "First name must be at most 20 characters."
+                return
+            }
+
+            guard lastName.count <= 20 else {
+                errorMessage = "Last name must be at most 20 characters."
+                return
+            }
+
+            guard isValidEmail(email) else {
+                errorMessage = "Please enter a valid email address."
+                return
+            }
+
+            guard password.count >= 6 else {
+                errorMessage = "Password must be at least 6 characters long."
+                return
+            }
+
+            guard password == confirmPassword else {
+                errorMessage = "Passwords do not match."
+                return
+            }
+
+            handleSignup()
+        }
+    
+    private func isValidEmail(_ email: String) -> Bool {
+           let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+           return NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluate(with: email)
+       }
 
     // MARK: - Handle Signup
     private func handleSignup() {

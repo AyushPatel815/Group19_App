@@ -17,6 +17,9 @@ class FirestoreHelper {
     static let shared = FirestoreHelper()
     private let db = Firestore.firestore()
     private let storage = Storage.storage()
+    
+    private init() {}
+
 
     // Save Recipe to Firestore (specific to the authenticated user)
     func saveRecipe(recipe: Meal, completion: @escaping (Error?) -> Void) {
@@ -47,138 +50,6 @@ class FirestoreHelper {
     }
     
     
-//    func saveRecipeWithMedia(recipe: Meal, images: [UIImage], completion: @escaping (Error?) -> Void) {
-//            guard let user = Auth.auth().currentUser else {
-//                completion(NSError(domain: "", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"]))
-//                return
-//            }
-//
-//            let recipeID = recipe.idMeal
-//            var uploadedImageURLs: [String] = []
-//            let uploadGroup = DispatchGroup()
-//
-//            // Upload each image to Firebase Storage
-//            for image in images {
-//                uploadGroup.enter()
-//                guard let imageData = image.jpegData(compressionQuality: 0.8) else {
-//                    print("Error converting image to JPEG data.")
-//                    uploadGroup.leave()
-//                    continue
-//                }
-//
-//                let imageRef = storage.reference().child("users/\(user.uid)/recipes/\(recipeID)/\(UUID().uuidString).jpg")
-//                imageRef.putData(imageData, metadata: nil) { _, error in
-//                    if let error = error {
-//                        print("Error uploading image: \(error)")
-//                        uploadGroup.leave()
-//                        return
-//                    }
-//                    imageRef.downloadURL { url, error in
-//                        if let url = url {
-//                            uploadedImageURLs.append(url.absoluteString)
-//                        } else if let error = error {
-//                            print("Error getting download URL: \(error)")
-//                        }
-//                        uploadGroup.leave()
-//                    }
-//                }
-//            }
-//
-//            // Wait for all uploads to complete
-//            uploadGroup.notify(queue: .main) {
-//                var recipeData: [String: Any] = [
-//                    "idMeal": recipeID,
-//                    "strMeal": recipe.strMeal,
-//                    "strCategory": recipe.strCategory,
-//                    "strArea": recipe.strArea,
-//                    "strInstructions": recipe.strInstructions,
-//                    "strIngredients": recipe.strIngredients,
-//                    "strMeasures": recipe.strMeasures,
-//                    "addedBy": user.uid,
-//                    "timestamp": Timestamp(date: Date())
-//                ]
-//
-//                // Add uploaded image URLs to recipe data
-//                if !uploadedImageURLs.isEmpty {
-//                    recipeData["images"] = uploadedImageURLs
-//                }
-//
-//                // Save recipe to Firestore
-//                self.db.collection("users").document(user.uid).collection("recipes").document(recipeID).setData(recipeData) { error in
-//                    completion(error)
-//                }
-//            }
-//        }
-    
-    
-//    func saveRecipeWithMedia(recipe: Meal, images: [UIImage], completion: @escaping (Error?) -> Void) {
-//        guard let userID = Auth.auth().currentUser?.uid else {
-//            completion(NSError(domain: "", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"]))
-//            return
-//        }
-//
-//        let recipeID = recipe.idMeal
-//        var uploadedImageURLs: [String] = []
-//        let uploadGroup = DispatchGroup()
-//
-//        for (index, image) in images.enumerated() {
-//            uploadGroup.enter()
-//            guard let imageData = image.jpegData(compressionQuality: 0.8) else {
-//                print("Error converting image \(index) to JPEG data.")
-//                uploadGroup.leave()
-//                continue
-//            }
-//
-//            print("Uploading image \(index) with size \(imageData.count) bytes")
-//
-//            let imageRef = storage.reference().child("users/\(userID)/recipes/\(recipeID)/\(UUID().uuidString).jpg")
-//            imageRef.putData(imageData, metadata: nil) { _, error in
-//                if let error = error {
-//                    print("Error uploading image \(index): \(error)")
-//                    uploadGroup.leave()
-//                    return
-//                }
-//                imageRef.downloadURL { url, error in
-//                    if let url = url {
-//                        print("Image \(index) uploaded successfully: \(url.absoluteString)")
-//                        uploadedImageURLs.append(url.absoluteString)
-//                    } else {
-//                        print("Error getting download URL for image \(index): \(String(describing: error))")
-//                    }
-//                    uploadGroup.leave()
-//                }
-//            }
-//        }
-//
-//        uploadGroup.notify(queue: .main) {
-//            var recipeData: [String: Any] = [
-//                "idMeal": recipeID,
-//                "strMeal": recipe.strMeal,
-//                "strCategory": recipe.strCategory,
-//                "strArea": recipe.strArea,
-//                "strInstructions": recipe.strInstructions,
-//                "strYoutube": recipe.strYoutube,
-//                "strIngredients": recipe.strIngredients,
-//                "strMeasures": recipe.strMeasures,
-//                "addedBy": userID,
-//                "timestamp": Timestamp(date: Date())
-//            ]
-//
-//            if !uploadedImageURLs.isEmpty {
-//                recipeData["images"] = uploadedImageURLs
-//            }
-//
-//            self.db.collection("users").document(userID).collection("recipes").document(recipeID).setData(recipeData) { error in
-//                if let error = error {
-//                    print("Error saving recipe to Firestore: \(error)")
-//                } else {
-//                    print("Recipe saved successfully to Firestore.")
-//                }
-//                completion(error)
-//            }
-//        }
-//    }
-    
     
     func saveRecipeWithMedia(recipe: Meal, images: [UIImage], completion: @escaping (Error?) -> Void) {
             guard let userID = Auth.auth().currentUser?.uid else {
@@ -205,6 +76,7 @@ class FirestoreHelper {
                 imageRef.putData(imageData, metadata: metadata) { _, error in
                     if let error = error {
                         print("Error uploading image \(index): \(error)")
+                        
                         uploadGroup.leave()
                         return
                     }
@@ -249,198 +121,44 @@ class FirestoreHelper {
                     completion(error)
                 }
             }
+        
         }
-    
 
-
-    // Fetch Recipes for Logged-in User
-//        func fetchSavedRecipes(completion: @escaping ([Meal]?, Error?) -> Void) {
-//            guard let user = Auth.auth().currentUser else {
-//                    print("User not authenticated.")
-//                completion(nil, NSError(domain: "", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"]))
-//                    return
-//                }
-//                print("User authenticated with ID: \(user.uid)")
-//            guard let user = Auth.auth().currentUser else {
-//                completion(nil, NSError(domain: "", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"]))
-//                return
-//            }
-//
-//            db.collection("users").document(user.uid).collection("savedRecipes").getDocuments { snapshot, error in
-//                if let error = error {
-//                    completion(nil, error)
-//                    return
-//                }
-//
-//                let recipes = snapshot?.documents.compactMap { document -> Meal? in
-//                    let data = document.data()
-//                    print("Fetched Recipe Data: \(data)") // Debugging Log
-//                    return Meal(
-//                        idMeal: data["idMeal"] as? String ?? UUID().uuidString,
-//                        strMeal: data["strMeal"] as? String ?? "Unknown",
-//                        strCategory: data["strCategory"] as? String ?? "Unknown",
-//                        strArea: data["strArea"] as? String ?? "Unknown",
-//                        strInstructions: data["strInstructions"] as? String ?? "",
-//                        strMealThumb: data["strMealThumb"] as? String ?? "",
-//                        strYoutube: data["strYoutube"] as? String ?? "",
-//                        strIngredients: data["strIngredients"] as? [String] ?? [],
-//                        strMeasures: data["strMeasures"] as? [String] ?? [],
-//                        imageUrls: data["images"] as? [String] ?? [] // Fetch images from Firestore
-//                    )
-//                }
-//                print("Recipes Decoded: \(recipes)") // Log decoded recipes
-//
-//                completion(recipes, nil)
-//            }
-//        }
     
     func fetchSavedRecipes(completion: @escaping ([Meal]?, Error?) -> Void) {
-            guard let user = Auth.auth().currentUser else {
-                print("User not authenticated.")
-                completion(nil, NSError(domain: "", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"]))
+        guard let user = Auth.auth().currentUser else {
+            print("User not authenticated.")
+            completion(nil, NSError(domain: "", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"]))
+            return
+        }
+        
+        db.collection("users").document(user.uid).collection("savedRecipes").getDocuments { snapshot, error in
+            if let error = error {
+                completion(nil, error)
                 return
             }
-
-            db.collection("users").document(user.uid).collection("savedRecipes").getDocuments { snapshot, error in
-                if let error = error {
-                    completion(nil, error)
-                    return
-                }
-
-                let recipes = snapshot?.documents.compactMap { document -> Meal? in
-                    let data = document.data()
-//                    print("Fetched Recipe Data: \(data)") // Debugging Log
-                    return Meal(
-                        idMeal: data["idMeal"] as? String ?? UUID().uuidString,
-                        strMeal: data["strMeal"] as? String ?? "Unknown",
-                        strCategory: data["strCategory"] as? String ?? "Unknown",
-                        strArea: data["strArea"] as? String ?? "Unknown",
-                        strInstructions: data["strInstructions"] as? String ?? "",
-                        strMealThumb: data["strMealThumb"] as? String ?? "",
-                        strYoutube: data["strYoutube"] as? String ?? "",
-                        strIngredients: data["strIngredients"] as? [String] ?? [],
-                        strMeasures: data["strMeasures"] as? [String] ?? [],
-                        imageUrls: data["images"] as? [String] ?? [] // Fetch images from Firestore
-                    )
-                }
-                print("Recipes Decoded: \(recipes ?? [])") // Log decoded recipes
-
-                completion(recipes, nil)
+            
+            let recipes = snapshot?.documents.compactMap { document -> Meal? in
+                let data = document.data()
+                //                    print("Fetched Recipe Data: \(data)") // Debugging Log
+                return Meal(
+                    idMeal: data["idMeal"] as? String ?? UUID().uuidString,
+                    strMeal: data["strMeal"] as? String ?? "Unknown",
+                    strCategory: data["strCategory"] as? String ?? "Unknown",
+                    strArea: data["strArea"] as? String ?? "Unknown",
+                    strInstructions: data["strInstructions"] as? String ?? "",
+                    strMealThumb: data["strMealThumb"] as? String ?? "",
+                    strYoutube: data["strYoutube"] as? String ?? "",
+                    strIngredients: data["strIngredients"] as? [String] ?? [],
+                    strMeasures: data["strMeasures"] as? [String] ?? [],
+                    imageUrls: data["images"] as? [String] ?? [] // Fetch images from Firestore
+                )
             }
+            print("Recipes Decoded: \(recipes ?? [])") // Log decoded recipes
+            
+            completion(recipes, nil)
         }
-
-    // Fetch All Public Recipes (Optional)
-//    func fetchAllRecipes(completion: @escaping ([Meal]?, Error?) -> Void) {
-//        guard let user = Auth.auth().currentUser else {
-//                print("User not authenticated.")
-//            completion(nil, NSError(domain: "", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"]))
-//                return
-//            }
-//            print("User authenticated with ID: \(user.uid)")
-//        db.collection("recipes").getDocuments { snapshot, error in
-//            if let error = error {
-//                completion(nil, error)
-//                return
-//            }
-//
-//            let recipes = snapshot?.documents.compactMap { document -> Meal? in
-//                let data = document.data()
-//                print("Fetched Recipe Data: \(data)") // Debugging Log
-//                return Meal(
-//                    idMeal: data["idMeal"] as? String ?? UUID().uuidString,
-//                    strMeal: data["strMeal"] as? String ?? "Unknown",
-//                    strCategory: data["strCategory"] as? String ?? "Unknown",
-//                    strArea: data["strArea"] as? String ?? "Unknown",
-//                    strInstructions: data["strInstructions"] as? String ?? "",
-//                    strMealThumb: data["strMealThumb"] as? String ?? "",
-//                    strTags: data["strTags"] as? String,
-//                    strYoutube: data["strYoutube"] as? String ?? "",
-//                    strIngredients: data["strIngredients"] as? [String] ?? [],
-//                    strMeasures: data["strMeasures"] as? [String] ?? []
-//                )
-//            }
-//            print("Recipes Decoded: \(recipes)") // Log decoded recipes
-//
-//            completion(recipes, nil)
-//        }
-//    }
-    
-    
-//    func fetchAllUserRecipes(completion: @escaping ([Meal]) -> Void) {
-//        guard let user = Auth.auth().currentUser else {
-//                print("User not authenticated.")
-//            completion(NSError(domain: "", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"]) as! [Meal])
-//                return
-//            }
-//            print("User authenticated with ID: \(user.uid)")
-//        db.collectionGroup("recipes").getDocuments { snapshot, error in
-//            if let error = error {
-//                print("Error fetching all user recipes: \(error)")
-//                completion([])
-//                return
-//            }
-//
-//            let recipes = snapshot?.documents.compactMap { document -> Meal? in
-//                let data = document.data()
-//                print("Fetched Recipe Data: \(data)") // Debugging Log
-//                return Meal(
-//                    idMeal: data["idMeal"] as? String ?? UUID().uuidString,
-//                    strMeal: data["strMeal"] as? String ?? "Unknown",
-//                    strCategory: data["strCategory"] as? String ?? "Unknown",
-//                    strArea: data["strArea"] as? String ?? "Unknown",
-//                    strInstructions: data["strInstructions"] as? String ?? "",
-//                    strMealThumb: data["strMealThumb"] as? String ?? "",
-//                    strIngredients: data["strIngredients"] as? [String] ?? [],
-//                    strMeasures: data["strMeasures"] as? [String] ?? [],
-//                    imageUrls: data["images"] as? [String] ?? [],
-//                    isUserAdded: true
-//                )
-//            }
-//            print("Recipes Decoded: \(recipes)") // Log decoded recipes
-//
-//            completion(recipes ?? [])
-//        }
-//    }
-    
-    // Fetch All User Recipes
-//        func fetchAllUserRecipes(completion: @escaping ([Meal]) -> Void) {
-//            guard let user = Auth.auth().currentUser else {
-//                print("User not authenticated.")
-//                completion([])
-//                return
-//            }
-//
-//            db.collectionGroup("recipes").getDocuments { snapshot, error in
-//                if let error = error {
-//                    print("Error fetching all user recipes: \(error)")
-//                    completion([])
-//                    return
-//                }
-//                print("Number of documents fetched: \(snapshot!.documents.count)")
-//                
-//
-//                let recipes = snapshot?.documents.compactMap { document -> Meal? in
-//                    let data = document.data()
-//                    print("Fetched Recipe Data: \(data)") // Debugging Log
-//                    return Meal(
-//                        idMeal: data["idMeal"] as? String ?? UUID().uuidString,
-//                        strMeal: data["strMeal"] as? String ?? "Unknown",
-//                        strCategory: data["strCategory"] as? String ?? "Unknown",
-//                        strArea: data["strArea"] as? String ?? "Unknown",
-//                        strInstructions: data["strInstructions"] as? String ?? "",
-//                        strMealThumb: data["strMealThumb"] as? String ?? "",
-//                        strIngredients: data["strIngredients"] as? [String] ?? [],
-//                        strMeasures: data["strMeasures"] as? [String] ?? [],
-//                        imageUrls: data["images"] as? [String] ?? [],
-//                        isUserAdded: true
-//                    )
-//                }
-//                print("Recipes Decoded: \(recipes ?? [])") // Log decoded recipes
-//
-//                completion(recipes ?? [])
-//            }
-//        }
-    
+    }
     
     
     func fetchAllUserRecipes(completion: @escaping ([Meal]) -> Void) {
@@ -502,66 +220,6 @@ class FirestoreHelper {
         }
     }
 
-
-
-
-    
-//    func deleteMeal(_ meal: Meal, completion: @escaping (Error?) -> Void) {
-//        guard let userID = Auth.auth().currentUser?.uid else {
-//            completion(NSError(domain: "", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"]))
-//            return
-//        }
-//
-//        let recipeRef = db.collection("users").document(userID).collection("recipes").document(meal.idMeal)
-//
-//        // Remove from Firestore
-//        recipeRef.delete { error in
-//            completion(error) // Notify the caller of success or failure
-//        }
-//    }
-    func deleteMeal(_ meal: Meal, completion: @escaping (Error?) -> Void) {
-            guard let userID = Auth.auth().currentUser?.uid else {
-                completion(NSError(domain: "", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"]))
-                return
-            }
-
-            let recipeRef = db.collection("users").document(userID).collection("recipes").document(meal.idMeal)
-            let storageRef = storage.reference().child("users/\(userID)/recipes/\(meal.idMeal)")
-
-            storageRef.listAll { result, error in
-                if let error = error {
-                    print("Error listing files in storage: \(error.localizedDescription)")
-                    completion(error)
-                    return
-                }
-
-                let dispatchGroup = DispatchGroup()
-
-                result?.items.forEach { item in
-                    dispatchGroup.enter()
-                    item.delete { error in
-                        if let error = error {
-                            print("Error deleting file \(item.name): \(error.localizedDescription)")
-                        } else {
-                            print("Deleted file: \(item.name)")
-                        }
-                        dispatchGroup.leave()
-                    }
-                }
-
-                dispatchGroup.notify(queue: .main) {
-                    recipeRef.delete { error in
-                        if let error = error {
-                            print("Error deleting recipe document: \(error.localizedDescription)")
-                        } else {
-                            print("Successfully deleted recipe and associated images.")
-                        }
-                        completion(error)
-                    }
-                }
-            }
-        }
-
     // Helper function to delete Firestore document
     private func deleteFirestoreDocument(_ documentRef: DocumentReference, completion: @escaping (Error?) -> Void) {
         documentRef.delete { error in
@@ -615,6 +273,7 @@ class FirestoreHelper {
                         strMealThumb: data["strMealThumb"] as? String ?? "",
                         strIngredients: data["strIngredients"] as? [String] ?? [],
                         strMeasures: data["strMeasures"] as? [String] ?? [],
+                        imageUrls: data["images"] as? [String],
                         isUserAdded: true
                     )
                 }
@@ -655,5 +314,152 @@ class FirestoreHelper {
             completion(uniqueRecipes ?? [])
         }
     }
+    
+    
+    func fetchSavedMeals(for userID: String, completion: @escaping ([Meal]) -> Void) {
+        let db = Firestore.firestore()
+        let recipesRef = db.collection("users").document(userID).collection("savedRecipes")
+
+        recipesRef.getDocuments { snapshot, error in
+            if let error = error {
+                print("Error fetching saved recipes: \(error)")
+                completion([])
+                return
+            }
+
+            let fetchedMeals: [Meal] = snapshot?.documents.compactMap { document in
+                try? document.data(as: Meal.self)
+            } ?? []
+
+            completion(fetchedMeals)
+        }
+    }
+
+    func deleteMeal(_ meal: Meal, for userID: String, inCollection collection: String = "recipes", hasMedia: Bool = false, completion: @escaping (Error?) -> Void) {
+        let recipeRef = db.collection("users").document(userID).collection(collection).document(meal.idMeal)
+        let storageRef = storage.reference().child("users/\(userID)/recipes/\(meal.idMeal)")
+
+        if hasMedia {
+            // If media files exist, delete them from Firebase Storage first
+            storageRef.listAll { result, error in
+                if let error = error {
+                    print("Error listing files in storage: \(error.localizedDescription)")
+                    completion(error)
+                    return
+                }
+
+                guard let items = result?.items, !items.isEmpty else {
+                    print("No files found in storage for \(meal.idMeal)")
+                    // Proceed with Firestore document deletion even if no files are found
+                    recipeRef.delete { error in
+                        if let error = error {
+                            print("Error deleting Firestore document: \(error.localizedDescription)")
+                            completion(error)
+                        } else {
+                            print("Successfully deleted recipe document (no media files found).")
+                            completion(nil)
+                        }
+                    }
+                    return
+                }
+
+                let dispatchGroup = DispatchGroup()
+
+                items.forEach { item in
+                    dispatchGroup.enter()
+                    item.delete { error in
+                        if let error = error {
+                            print("Error deleting file \(item.name): \(error.localizedDescription)")
+                        } else {
+                            print("Deleted file: \(item.name)")
+                        }
+                        dispatchGroup.leave()
+                    }
+                }
+
+                dispatchGroup.notify(queue: .main) {
+                    // After all media is deleted, remove the Firestore document
+                    recipeRef.delete { error in
+                        if let error = error {
+                            print("Error deleting Firestore document: \(error.localizedDescription)")
+                        } else {
+                            print("Successfully deleted recipe and associated media.")
+                        }
+                        completion(error)
+                    }
+                }
+            }
+        } else {
+            // If no media, directly delete the Firestore document
+            recipeRef.delete { error in
+                if let error = error {
+                    print("Error deleting Firestore document: \(error.localizedDescription)")
+                } else {
+                    print("Successfully deleted recipe document.")
+                }
+                completion(error)
+            }
+        }
+    }
+
+    func deleteFromSavedRecipes(_ meal: Meal, completion: @escaping (Bool) -> Void) {
+        let db = Firestore.firestore()
+        db.collectionGroup("savedRecipes")
+            .whereField("idMeal", isEqualTo: meal.idMeal)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error fetching saved recipes for deletion: \(error.localizedDescription)")
+                    completion(false)
+                    return
+                }
+                
+                guard let documents = snapshot?.documents, !documents.isEmpty else {
+                    print("No saved recipes found for deletion.")
+                    completion(false)
+                    return
+                }
+                
+                let batch = db.batch()
+                
+                for document in documents {
+                    print("Deleting document: \(document.documentID) from savedRecipes")
+                    batch.deleteDocument(document.reference)
+                }
+                
+                batch.commit { error in
+                    if let error = error {
+                        print("Error committing batch deletion: \(error.localizedDescription)")
+                        completion(false)
+                    } else {
+                        print("Successfully deleted from saved recipes.")
+                        completion(true)
+                    }
+                }
+            }
+    }
+    func deleteMealFromAllLocations(_ meal: Meal, completion: @escaping (Bool) -> Void) {
+        deleteFromSavedRecipes(meal) { success in
+            if success {
+                guard let userID = Auth.auth().currentUser?.uid else {
+                    completion(false)
+                    return
+                }
+
+                self.deleteMeal(meal, for: userID, hasMedia: true) { error in
+                    if let error = error {
+                        print("Failed to delete meal from recipes: \(error.localizedDescription)")
+                        completion(false)
+                    } else {
+                        print("Meal successfully deleted from all locations.")
+                        completion(true)
+                    }
+                }
+            } else {
+                completion(false)
+            }
+        }
+    }
+
+
 
 }
