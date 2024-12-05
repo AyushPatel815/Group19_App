@@ -24,6 +24,7 @@ struct AnimatedSearchBar: View {
                     .foregroundColor(.white)
                 if showTextFi {
                     TextField("Search...", text: $searchtext)
+                        .autocapitalization(.none)
                         .padding(.horizontal)
                         .foregroundColor(.black)
                 }

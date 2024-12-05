@@ -11,24 +11,26 @@ import FirebaseAuth
 
 struct HomePageView: View {
     @Binding var meals: [Meal]  // Meals is now a binding from the parent view
-    @Binding var savedMeals: [Meal]
+    @Binding var savedMeals: [Meal]    // List of saved meals (passed from parent view)
     
-    @State private var searchText: String = ""
-    @State private var filteredMeals: [Meal] = []
+    @State private var searchText: String = ""     // Search text input by the user
+    @State private var filteredMeals: [Meal] = []     // Meals filtered based on search and filters
     
     // State variables for selected filter options
-    @State private var selectedCategory: String = "All"
-    @State private var selectedArea: String = "All"
-    @State private var selectedTag: String = "All"
+    @State private var selectedCategory: String = "All"   // Selected category filter
+    @State private var selectedArea: String = "All"    // Selected area filter
+    @State private var selectedTag: String = "All"   // Selected tag filter
     @State private var searchBarState: Bool = false // Tracks if the search bar is expanded
     
     
     @State private var isDataLoaded = false
-    @State private var randomMeals: [Meal] = []
+    @State private var randomMeals: [Meal] = []   // Meals selected for the carousel display
 
     var body: some View {
         NavigationStack {
             VStack {
+                
+                // MARK: - Top Bar with Search and Filters
                 ZStack {
                     LinearGradient(
                         gradient: Gradient(colors: [.yellow, .orange]),
@@ -75,6 +77,7 @@ struct HomePageView: View {
                                     .shadow(radius: 2)
                             }
                             
+                            // Add Recipe Button
                             NavigationLink(destination: AddRecipePageView(meals: $meals)) {
                                 Image(systemName: "plus.circle")
                                     .font(.title)
@@ -95,9 +98,10 @@ struct HomePageView: View {
                 .frame(height: 130)
                 .cornerRadius(20)
                 
+                // MARK: - Main Content
                 ScrollView {
                     VStack {
-                        // Hide the carousel if search is active or filters are applied
+                        // Carousel display for random meals (only when no filters or search is applied)
                         if searchText.isEmpty && selectedCategory == "All" && selectedArea == "All" && selectedTag == "All" {
                             if !randomMeals.isEmpty {
                                 TabView {
@@ -146,11 +150,11 @@ struct HomePageView: View {
             }
             .ignoresSafeArea()
             .onAppear {
+                // Load data and fetch saved recipes when view appears
                 if !isDataLoaded {
                     Task {
                         await loadData()
                         await fetchSavedRecipes()
-//                        await mergeAndSortRecipes()
                         isDataLoaded = true
                     }
                     
@@ -160,11 +164,8 @@ struct HomePageView: View {
                             await mergeAndSortRecipes() // Refresh the data when new recipes are added
                         }
                     }
-
-                    
                 } else {
                     applyFilters()
-//                    applySearchFilter()
                     
                 }
                 
@@ -239,6 +240,7 @@ struct HomePageView: View {
         }
     }
     
+    // Apply selected filters to meals
     func applyFilters() {
             filteredMeals = meals.filter { meal in
                 let categoryMatch = selectedCategory == "All" || meal.strCategory == selectedCategory
@@ -259,7 +261,7 @@ struct HomePageView: View {
         filteredMeals = meals // Reset the filtered meals to show all
     }
     
-
+    // Fetch saved recipes from Firestore
     func fetchSavedRecipes() async {
             guard let userID = Auth.auth().currentUser?.uid else { return }
 
@@ -277,6 +279,7 @@ struct HomePageView: View {
             }
         }
 
+    // Save a recipe to Firestore
     func saveRecipe(_ meal: Meal) {
             guard let userID = Auth.auth().currentUser?.uid else { return }
 

@@ -79,18 +79,6 @@ struct RecipeDetailPageView: View {
                                 .cornerRadius(10)
                                 .padding()
                         }
-//                        if !meal.strYoutube.isEmpty, let youtubeURL = URL(string: meal.strYoutube) {
-//                            WebView(url: youtubeURL)
-//                                .frame(maxWidth: .infinity, maxHeight: 300)
-//                                .cornerRadius(10)
-//                                .padding()
-//                        } else {
-//                            Text("No YouTube video available.")
-//                                .font(.subheadline)
-//                                .foregroundColor(.gray)
-//                        }
-
-
                     }
                     .frame(height: 300)
                     .tabViewStyle(PageTabViewStyle()) // Make it look like a slider
@@ -187,7 +175,7 @@ struct RecipeDetailPageView: View {
         }
     }
 
-    
+    // function to decode YouTube URL
     func getYouTubeEmbedURL(youtubeLink: String) -> String {
         // Check if it's a standard YouTube link
         if youtubeLink.contains("youtube.com/watch?v="),

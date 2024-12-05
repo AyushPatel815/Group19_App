@@ -5,113 +5,6 @@
 //  Created by Ayush Patel on 10/21/24.
 //
 
-//import SwiftUI
-//
-//struct MealSectionView: View {
-//    let mealType: String
-//    let notes: [String]
-//    let editAction: () -> EditNotesView
-//
-//    var body: some View {
-//        VStack(alignment: .leading) {
-//            HStack {
-//                Text("\(mealType)")
-//                    .font(.title2)
-//                    .bold()
-//                Spacer()
-//                NavigationLink(destination: editAction()) {
-//                    Text("Add Notes")
-//                        .font(.subheadline)
-//                        .foregroundColor(.blue)
-//                }
-//            }
-//
-//            // Display notes as scrollable items
-//            if notes.isEmpty {
-//                Text("No notes for \(mealType)")
-//                    .foregroundColor(.gray)
-//                    .padding(.vertical, 5)
-//            } else {
-//                ForEach(notes, id: \.self) { note in
-//                    NavigationLink(destination: FullNoteView(note: note)) {
-//                        Text(note)
-//                            .font(.body)
-//                            .foregroundColor(.black)
-//                            .padding(.vertical, 5)
-//                            .frame(maxWidth: .infinity, alignment: .leading)
-//                            .background(Color.gray.opacity(0.1))
-//                            .cornerRadius(8)
-//                    }
-//                }
-//            }
-//
-//            Divider()
-//        }
-//        .padding()
-//    }
-//}
-
-
-
-
-//import SwiftUI
-//
-//struct MealSectionView: View {
-//    let mealType: String
-//    @Binding var notes: [String]  // Binding to the notes array for this meal type
-//
-//    var body: some View {
-//        VStack(alignment: .leading) {
-//            HStack {
-//                Text(mealType)
-//                    .font(.title2)
-//                    .bold()
-//                Spacer()
-//                NavigationLink(destination: EditNotesView(notes: $notes)) {
-//                    Text("Add Notes")
-//                        .font(.subheadline)
-//                        .foregroundColor(.blue)
-//                }
-//            }
-//
-//            // Display the notes with swipe-to-delete functionality
-//            if notes.isEmpty {
-//                Text("No notes for \(mealType)")
-//                    .foregroundColor(.gray)
-//                    .padding(.vertical, 5)
-//            } else {
-//                ForEach(Array(notes.enumerated()), id: \.element) { index, note in
-//                    VStack {
-//
-//                        NavigationLink(destination: FullNoteView(notes: $notes, note: note)) {  // Pass the note and notes array as binding
-//                            Text(note)
-//                                .font(.body)
-//                                .foregroundColor(.black)
-//                                .padding(.vertical, 5)
-//                                .frame(maxWidth: .infinity, alignment: .leading)
-//                                .background(Color.gray.opacity(0.1))
-//                                .cornerRadius(8)
-//                                .padding(.horizontal)
-//                        }
-//                    }
-//                    .frame(height: 60)
-//                    .padding(.vertical, 5)
-//                }
-//            }
-//
-//            Divider()
-//        }
-//        .padding()
-//    }
-//
-//    // Function to delete a note at the specified index
-//    func deleteNote(at index: Int) {
-//        notes.remove(at: index)  // Remove the note at the specified index
-//    }
-//}
-
-
-
 
 import SwiftUI
 
@@ -173,7 +66,6 @@ struct MealSectionView: View {
                 .frame(height: CGFloat(notes.count * 60))  // Adjust height dynamically
             }
 
-//            Divider()
         }
         .padding()
         .sheet(isPresented: $isEditNoteViewPresented) {

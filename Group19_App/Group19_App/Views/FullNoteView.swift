@@ -9,6 +9,8 @@
 
 import SwiftUI
 
+
+// To Add Meal Planner Notes
 struct FullNoteView: View {
     let note: String
 
@@ -19,8 +21,6 @@ struct FullNoteView: View {
                     .font(.title3)
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
-//                    .background(Color.gray.opacity(0.1))
-                
                 Spacer()
             }
             .navigationTitle("Note Details")

@@ -11,16 +11,16 @@ import FirebaseFirestore
 import FirebaseAuth
 
 struct SavedPageView: View {
-    @Binding var savedMeals: [Meal]
-    @Binding var meals: [Meal]
+    @Binding var savedMeals: [Meal]   // List of saved meals (from parent view)
+    @Binding var meals: [Meal]  // All meals data (if needed globally)
 
-    @State private var searchText: String = ""
-    @State private var filteredSavedMeals: [Meal] = []
+    @State private var searchText: String = ""    // Search bar text
+    @State private var filteredSavedMeals: [Meal] = []    // Meals filtered based on search and filters
 
-    @State private var selectedCategorySaved: String = "All"
-    @State private var selectedAreaSaved: String = "All"
-    @State private var selectedTagSaved: String = "All"
-    @State private var searchBarState: Bool = false
+    @State private var selectedCategorySaved: String = "All"    // Selected category filter
+    @State private var selectedAreaSaved: String = "All"   // Selected area filter
+    @State private var selectedTagSaved: String = "All"    // Selected tag filter
+    @State private var searchBarState: Bool = false    // Toggle for search bar visibility
     @State private var isLoading: Bool = false
     @State private var loadedImages: [String: UIImage] = [:] // Dictionary to cache loaded images by URL
 
@@ -47,6 +47,7 @@ struct SavedPageView: View {
                             .onChange(of: searchText) { _ in applyFilters() }
                             .frame(maxWidth: .infinity)
 
+                        // Filter Button
                         if !searchBarState {
                             Spacer().frame(width: 70)
                             NavigationLink(destination: FilterButtonPageView(
@@ -125,10 +126,10 @@ struct SavedPageView: View {
                                         Button(action: {
                                             removeRecipe(meal)
                                         }) {
-                                            Image(systemName: "bookmark.fill")
+                                            Image(systemName: "heart.fill")
                                                 .resizable()
                                                 .foregroundColor(.black)
-                                                .frame(width: 18, height: 30)
+                                                .frame(width: 28, height: 30)
                                                 .padding()
                                         }
                                     }
@@ -149,7 +150,7 @@ struct SavedPageView: View {
                     
                 }
                 .onChange(of: savedMeals) { _ in
-                    applyFilters()
+                    applyFilters()    // Reapply filters when savedMeals changes
                 }
                 
                 
@@ -158,7 +159,7 @@ struct SavedPageView: View {
         }
     }
 
-    // MARK: - Logic Functions
+    // Apply filters based on user selections
     func applyFilters() {
         var filtered = savedMeals
 
@@ -183,6 +184,7 @@ struct SavedPageView: View {
         }
     }
 
+    // Clear all applied filters
     func clearFilters() {
         selectedCategorySaved = "All"
         selectedAreaSaved = "All"
@@ -191,6 +193,7 @@ struct SavedPageView: View {
         filteredSavedMeals = savedMeals
     }
 
+    // Remove a recipe from saved meals
     func removeRecipe(_ meal: Meal) {
         guard let userID = Auth.auth().currentUser?.uid else { return }
 
@@ -206,7 +209,7 @@ struct SavedPageView: View {
         }
     }
     
-
+    // Fetch saved meals from Firestore and update the UI
     private func fetchAndUpdateSavedMeals() {
         guard let userID = Auth.auth().currentUser?.uid else {
             print("Error: User not logged in.")
@@ -224,7 +227,7 @@ struct SavedPageView: View {
         }
     }
     
-    // MARK: - Load Image Function
+    // Load images asynchronously and cache them
     private func loadImage(from url: URL, for urlString: String) {
         Task {
             do {

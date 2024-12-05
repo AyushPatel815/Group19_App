@@ -90,7 +90,6 @@ struct Meal: Codable, Equatable, Identifiable {
         strArea = try container.decode(String.self, forKey: .strArea)
         strInstructions = try container.decode(String.self, forKey: .strInstructions)
         strMealThumb = try container.decodeIfPresent(String.self, forKey: .strMealThumb) ?? ""
-//        strYoutube = try container.decodeIfPresent(String.self, forKey: .strYoutube) ?? "" // Ensure YouTube link is captured
         imageUrls = try container.decodeIfPresent([String].self, forKey: .imageUrls)
         videoURLs = try container.decodeIfPresent([URL].self, forKey: .videoURLs)
         
@@ -123,8 +122,6 @@ struct Meal: Codable, Equatable, Identifiable {
         isUserAdded = try container.decodeIfPresent(Bool.self, forKey: .isUserAdded) ?? false
         strTags = try container.decodeIfPresent(String.self, forKey: .strTags)
 
-        // Debugging statement to verify decoding
-//        print("Decoded Meal with YouTube Link: \(strYoutube)")
     }
 
     // Custom encoding for dynamic ingredients and measures

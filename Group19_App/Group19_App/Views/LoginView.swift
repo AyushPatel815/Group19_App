@@ -4,8 +4,8 @@ import SwiftUI
 import FirebaseAuth
 
 struct LoginView: View {
-    @State private var email: String = ""
-    @State private var password: String = ""
+    @State private var email: String = ""  // email string
+    @State private var password: String = ""  // password string
     @State private var isPasswordVisible: Bool = false // Toggle for password visibility
     @State private var errorMessage: String? = nil
     @State private var isLoading: Bool = false
@@ -93,7 +93,6 @@ struct LoginView: View {
 
                 // Login Button
                 Button(action: {
-//                    authenticateUser() // Handle the login
                     validateAndAuthenticateUser()
                 }) {
                     if isLoading {
@@ -139,6 +138,7 @@ struct LoginView: View {
             .ignoresSafeArea(.all, edges: .top)
             .alert("Forgot Password", isPresented: $isForgotPasswordPresented, actions: {
                 TextField("Enter your email", text: $email)
+                    .autocapitalization(.none)
                 Button("Send Reset Email", action: {
                     sendPasswordReset()
                 })
@@ -177,15 +177,40 @@ struct LoginView: View {
             errorMessage = "Please enter your email to reset your password."
             return
         }
+        
+        guard email.count >= 6 else {
+            errorMessage = "Email must be at least 6 characters long."
+            return
+        }
 
-        Auth.auth().sendPasswordReset(withEmail: email) { error in
+        guard isValidEmail(email) else {
+            errorMessage = "Please enter a valid email address."
+            return
+        }
+
+        // Check if the email exists in Firebase Authentication
+        Auth.auth().fetchSignInMethods(forEmail: email) { signInMethods, error in
             if let error = error {
-                errorMessage = "Failed to send reset email: \(error.localizedDescription)"
+                errorMessage = "Failed to verify email: \(error.localizedDescription)"
+                return
+            }
+
+            if let signInMethods = signInMethods, !signInMethods.isEmpty {
+                // Email exists in Firebase, proceed with password reset
+                Auth.auth().sendPasswordReset(withEmail: email) { error in
+                    if let error = error {
+                        errorMessage = "Failed to send reset email: \(error.localizedDescription)"
+                    } else {
+                        errorMessage = "A password reset email has been sent to \(email)."
+                    }
+                }
             } else {
-                errorMessage = "A password reset email has been sent to \(email)."
+                // Email does not exist
+                errorMessage = "Email not found. Please sign up first."
             }
         }
     }
+
     
     // MARK: - Validation and Authentication
         func validateAndAuthenticateUser() {

@@ -12,35 +12,31 @@ import FirebaseFirestore
 import FirebaseStorage
 
 struct AddRecipePageView: View {
-    @State private var selectedImages: [UIImage] = []
-    @State private var showImagePicker = false
+    @State private var selectedImages: [UIImage] = [] // Stores selected images for the recipe
+    @State private var showImagePicker = false // Controls the visibility of the image picker
     @State private var selectedVideos: [URL] = [] // Track selected video URLs
     
     // User input variables
-    @State private var ingredients: [String] = [""]
-    @State private var measures: [String] = [""]
-    @State private var strMeal: String = ""
-    @State private var strCategory: String = ""
-    @State private var strArea: String = ""
-    @State private var strInstructions: String = ""
-    @State private var strYoutube: String = ""
+    @State private var ingredients: [String] = [""] // List of ingredients
+    @State private var measures: [String] = [""]  // List of corresponding measures
+    @State private var strMeal: String = ""  // Meal name
+    @State private var strCategory: String = ""   // Meal category
+    @State private var strArea: String = ""  // Meal Area
+    @State private var strInstructions: String = ""  // Meal Instructions
+    @State private var strYoutube: String = "" // YouTube video link for the meal
     
     // Alert and validation
-    @State private var showAlert = false
-    @State private var showValidationError = false
+    @State private var showAlert = false  // Controls the confirmation alert visibility
+    @State private var showValidationError = false   // Controls the validation error alert
     @State private var validationErrorMessage: String = "" // Store validation error message
-    @State private var isUploading = false
+    @State private var isUploading = false    // Indicates if data is being uploaded
     @Environment(\.dismiss) var dismiss
-    @Binding var meals: [Meal]
+    @Binding var meals: [Meal]   // Binding to the list of meals
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-//                    Text("Add your Recipe")
-//                        .font(.largeTitle)
-//                        .fontWeight(.bold)
-//                        .padding(.top, 20)
                     
                     // Media Section
                     VStack(alignment: .leading) {
@@ -99,7 +95,7 @@ struct AddRecipePageView: View {
                                 .padding(.horizontal)
                         }
                         
-                        ingredientsSection()
+                        ingredientsSection()     // Ingredients and measures section
                         
                         inputField(title: "YouTube Link", text: $strYoutube)
                     }
@@ -109,9 +105,12 @@ struct AddRecipePageView: View {
                 .sheet(isPresented: $showImagePicker) {
                     ImagePickerView(selectedImages: $selectedImages, selectedVideoURLs: $selectedVideos)
                 }
+                
+                Spacer()
+                    .frame(height: 30)
             }
         }
-        .navigationBarBackButtonHidden(true)
+        .navigationBarBackButtonHidden(true)   // Hide default back button
         .navigationBarTitleDisplayMode(.inline) // Ensure compact navigation bar
         .toolbarBackground(
             LinearGradient(
@@ -130,20 +129,20 @@ struct AddRecipePageView: View {
                         .foregroundColor(.red),
                         
                         trailing: Button("Post") {
-                            validateAndPost()
+                            validateAndPost()    // Validate and proceed to post
                         }
                         .foregroundColor(.blue)
-                        .disabled( isUploading)
+                        .disabled( isUploading)    // Disable while uploading
                     )
         .navigationTitle("Add Recipe")
                     .alert("Error", isPresented: $showValidationError) {
                         Button("OK", role: .cancel) { }
                     } message: {
-                        Text(validationErrorMessage)
+                        Text(validationErrorMessage)    // Show validation error message
                     }
                     .alert("Confirm Post", isPresented: $showAlert) {
                         Button("Yes", role: .destructive) {
-                            postRecipe()
+                            postRecipe()    // Post recipe on confirmation
                         }
                         Button("Cancel", role: .cancel) { }
                     } message: {
@@ -158,7 +157,6 @@ struct AddRecipePageView: View {
                 .font(.headline)
             TextField("Enter \(title)", text: text)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
-//                .padding(.horizontal)
         }
     }
     
@@ -225,7 +223,7 @@ struct AddRecipePageView: View {
             return
         }
         
-        if strMeal.count > 20 {
+        if strMeal.count > 30 {
             validationErrorMessage = "Meal Name should be no more than 20 characters."
             showValidationError = true
             return
@@ -237,7 +235,7 @@ struct AddRecipePageView: View {
             return
         }
         
-        if strCategory.count > 15 {
+        if strCategory.count > 20 {
             validationErrorMessage = "Category should be no more than 15 characters."
             showValidationError = true
             return
@@ -249,7 +247,7 @@ struct AddRecipePageView: View {
             return
         }
         
-        if strArea.count > 15 {
+        if strArea.count > 20 {
             validationErrorMessage = "Area should be no more than 15 characters."
             showValidationError = true
             return
@@ -260,6 +258,12 @@ struct AddRecipePageView: View {
             showValidationError = true
             return
         }
+        
+        if !strYoutube.isEmpty && !isValidYouTubeURL(strYoutube) {
+                validationErrorMessage = "Please enter a valid YouTube URL"
+                showValidationError = true
+                return
+            }
         
         if ingredients.allSatisfy({ $0.isEmpty }) {
             validationErrorMessage = "At least one ingredient is required."
@@ -282,6 +286,21 @@ struct AddRecipePageView: View {
     func validateInputs() -> Bool {
         return !strMeal.isEmpty && !strCategory.isEmpty && !strArea.isEmpty && !strInstructions.isEmpty
     }
+    
+    func isValidYouTubeURL(_ urlString: String) -> Bool {
+        let lowercasedURL = urlString.lowercased()
+        
+        // Check if the string contains "youtube.com" or "youtu.be"
+        let containsYouTube = lowercasedURL.contains("youtube.com") || lowercasedURL.contains("youtu.be")
+        
+        // Ensure the URL has either a video ID or query parameters (optional check for "?")
+        let hasVideoID = lowercasedURL.contains("?v=") || lowercasedURL.contains("?si=") || lowercasedURL.contains("/")
+        
+        // Return true if it contains YouTube and has valid ID or query parameters
+        return containsYouTube && hasVideoID
+    }
+
+
     
     // Post recipe to Firebase
     func postRecipe() {

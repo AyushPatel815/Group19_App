@@ -11,17 +11,17 @@ import FirebaseAuth
 import FirebaseFirestore
 
 struct SignupView: View {
-    @State private var firstName: String = ""
-    @State private var lastName: String = ""
-    @State private var email: String = ""
-    @State private var password: String = ""
-    @State private var confirmPassword: String = ""
-    @State private var rememberMe: Bool = false
-    @State private var isPasswordVisible: Bool = false
-    @State private var isConfirmPasswordVisible: Bool = false
-    @State private var errorMessage: String? = nil
+    @State private var firstName: String = ""   // User's first name
+    @State private var lastName: String = ""   // User last name
+    @State private var email: String = ""   // User's email
+    @State private var password: String = ""  // User's passwrd
+    @State private var confirmPassword: String = ""   // Confirm password field
+    @State private var rememberMe: Bool = false   // Remember me toggle (not currently used)
+    @State private var isPasswordVisible: Bool = false   // Toggle for showing/hiding password
+    @State private var isConfirmPasswordVisible: Bool = false   // Toggle for showing/hiding confirm password
+    @State private var errorMessage: String? = nil     // Error message to display
     @State private var isLoading: Bool = false
-    @EnvironmentObject var authState: AuthState  // To track login state and navigate to the homepage
+    @EnvironmentObject var authState: AuthState  // Authentication state to manage navigation
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
 
     var body: some View {
@@ -92,8 +92,12 @@ struct SignupView: View {
                 HStack {
                     if isPasswordVisible {
                         TextField("Enter your password", text: $password)
+                            .autocapitalization(.none)
+
                     } else {
                         SecureField("Enter your password", text: $password)
+                            .autocapitalization(.none)
+
                     }
                     Button(action: {
                         isPasswordVisible.toggle()
@@ -149,7 +153,6 @@ struct SignupView: View {
 
             // Signup Button
             Button(action: {
-//                handleSignup()
                 validateAndSignup()
 
             }) {
@@ -181,6 +184,7 @@ struct SignupView: View {
     
     // MARK: - Validation and Signup
         private func validateAndSignup() {
+            // Input validation for signup
             guard !firstName.isEmpty, !lastName.isEmpty, !email.isEmpty, !password.isEmpty else {
                 errorMessage = "Please fill in all fields."
                 return
@@ -215,6 +219,7 @@ struct SignupView: View {
         }
     
     private func isValidEmail(_ email: String) -> Bool {
+        // Regular expression for email validation
            let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
            return NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluate(with: email)
        }
@@ -274,10 +279,10 @@ struct SignupView: View {
 
 
 class AuthState: ObservableObject {
-    @Published var isAuthenticated: Bool = false
+    @Published var isAuthenticated: Bool = false   // Tracks if the user is authenticated
 
     init() {
-        // Listen to auth state changes
+        // Listen to Firebase authentication state changes
         Auth.auth().addStateDidChangeListener { [weak self] _, user in
             self?.isAuthenticated = user != nil
         }

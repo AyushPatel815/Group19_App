@@ -11,17 +11,19 @@ import FirebaseAuth
 
 
 class FirebaseAuthHelper {
-    static let shared = FirebaseAuthHelper()
-    private let db = Firestore.firestore()
+    static let shared = FirebaseAuthHelper()  // Singleton instance for global access
+    private let db = Firestore.firestore()  // Firestore reference
 
-    // Register User
+    // MARK: - Register User
     func registerUser(email: String, password: String, firstName: String, lastName: String, completion: @escaping (Error?) -> Void) {
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
+            // Check if an error occurred during account creation
             if let error = error {
                 completion(error)
                 return
             }
             
+            // If the user was created successfully, store their data in Firestore
             if let user = authResult?.user {
                 let userData: [String: Any] = [
                     "uid": user.uid,
@@ -36,9 +38,10 @@ class FirebaseAuthHelper {
         }
     }
 
-    // Login User
+    // MARK: - Login User
     func loginUser(email: String, password: String, completion: @escaping (Error?) -> Void) {
         Auth.auth().signIn(withEmail: email, password: password) { _, error in
+            // Pass the result (success or error) back to the caller
             completion(error)
         }
     }

@@ -67,10 +67,10 @@ struct RecipeEntry: View {
                             Button(action: {
                                 saveRecipe(meal)  // Call the onSave closure when the button is tapped
                             }) {
-                                Image(systemName: savedMeals.contains(where: { $0.idMeal == meal.idMeal }) ? "bookmark.fill" : "bookmark")
+                                Image(systemName: savedMeals.contains(where: { $0.idMeal == meal.idMeal }) ? "heart.fill" : "heart")
                                     .resizable()
                                     .foregroundColor(.black)
-                                    .frame(width: 18, height: 30)
+                                    .frame(width: 28, height: 30)
                                     .padding()
                             }
                         }
@@ -84,7 +84,7 @@ struct RecipeEntry: View {
             .padding()
         }
     }
-    
+    // SaveRecipe function to save recipe and update entry in firebase
     func saveRecipe(_ meal: Meal) {
         guard let userID = Auth.auth().currentUser?.uid else { return }
 
@@ -147,6 +147,7 @@ struct CustomAsyncImage: View {
         }
     }
 
+    // Asynchronously load image without hurting other UI component or rendering
     private func loadImage() {
         URLSession.shared.dataTask(with: url) { data, response, error in
             guard let data = data, let image = UIImage(data: data), error == nil else {
@@ -162,9 +163,6 @@ struct CustomAsyncImage: View {
             }
         }.resume()
     }
-    
-    
-    
 
 }
 

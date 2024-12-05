@@ -336,6 +336,7 @@ struct ProfilePageView: View {
                                                 loadImage(from: url, for: urlString)
                                             }
                                     }
+                                    
                                 }
                             } else {
                     Rectangle()
@@ -402,7 +403,7 @@ struct ProfilePageView: View {
                         .autocapitalization(.none)
                 }
                 Button(action: {
-                    isConfirmPasswordVisible.toggle()
+//                    isConfirmPasswordVisible.toggle()
                 }) {
                     Image(systemName: isConfirmPasswordVisible ? "eye.slash" : "eye")
                         .foregroundColor(.gray)
@@ -431,7 +432,7 @@ struct ProfilePageView: View {
 
         Auth.auth().currentUser?.updatePassword(to: password) { error in
             if let error = error {
-                alertMessage = "Error updating password: \(error.localizedDescription)"
+                alertMessage = "Error updating password, please open app again"
                 showAlert = true
             } else {
                 alertMessage = "Password updated successfully!"
@@ -443,6 +444,22 @@ struct ProfilePageView: View {
             }
         }
     }
+    
+    func getYouTubeEmbedURL(youtubeLink: String) -> String {
+        // Check if it's a standard YouTube link
+        if youtubeLink.contains("youtube.com/watch?v="),
+           let videoID = youtubeLink.split(separator: "=").last?.split(separator: "&").first {
+            return "https://www.youtube.com/embed/\(videoID)"
+        }
+        // Check if it's a shortened YouTube link (youtu.be)
+        else if youtubeLink.contains("youtu.be"),
+                let videoID = youtubeLink.split(separator: "/").last?.split(separator: "?").first {
+            return "https://www.youtube.com/embed/\(videoID)"
+        }
+        // Return the original link if it doesn't match the above formats
+        return youtubeLink
+    }
+
 
     
     
@@ -560,8 +577,6 @@ struct ProfilePageView: View {
             }
         }
     }
-
-
 }
 
 struct AccountDetailField: View {
