@@ -18,10 +18,10 @@ struct ProfilePageView: View {
     @Binding var savedMeals: [Meal]
     
     @State private var userRecipes: [Meal] = []
-    @State private var firstName: String = ""
-    @State private var lastName: String = ""
-    @State private var email: String = ""
-    @State private var password: String = "••••••••"
+    @State private var firstName: String = ""  // User's first name
+    @State private var lastName: String = ""  // user's last name
+    @State private var email: String = ""   // User's email
+    @State private var password: String = "••••••••"   // User's password
     @State private var confirmPassword: String = "••••••••"
     @State private var isPasswordVisible: Bool = false
     @State private var isConfirmPasswordVisible: Bool = false
@@ -30,8 +30,8 @@ struct ProfilePageView: View {
     @State private var showAlert = false
     @State private var alertMessage: String = ""
     @State private var alertAction: (() -> Void)? = nil
-    @State private var profileImage: UIImage? = nil
-    @State private var isImagePickerPresented = false
+    @State private var profileImage: UIImage? = nil  // User profile image
+    @State private var isImagePickerPresented = false   // Boolean to trigger ImagePicker
     @State private var loadedImages: [String: UIImage] = [:] // Dictionary to cache loaded images by URL
     
     @AppStorage("profileImagePath") private var profileImagePath: String = ""
