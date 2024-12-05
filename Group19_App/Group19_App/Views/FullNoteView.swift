@@ -13,7 +13,7 @@ import SwiftUI
 // To Add Meal Planner Notes
 struct FullNoteView: View {
     let note: String
-
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {

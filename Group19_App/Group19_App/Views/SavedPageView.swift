@@ -13,18 +13,18 @@ import FirebaseAuth
 struct SavedPageView: View {
     @Binding var savedMeals: [Meal]   // List of saved meals (from parent view)
     @Binding var meals: [Meal]  // All meals data (if needed globally)
-
+    
     @State private var searchText: String = ""    // Search bar text
     @State private var filteredSavedMeals: [Meal] = []    // Meals filtered based on search and filters
-
+    
     @State private var selectedCategorySaved: String = "All"    // Selected category filter
     @State private var selectedAreaSaved: String = "All"   // Selected area filter
     @State private var selectedTagSaved: String = "All"    // Selected tag filter
     @State private var searchBarState: Bool = false    // Toggle for search bar visibility
     @State private var isLoading: Bool = false
     @State private var loadedImages: [String: UIImage] = [:] // Dictionary to cache loaded images by URL
-
-
+    
+    
     
     private let db = Firestore.firestore()
     
@@ -40,13 +40,13 @@ struct SavedPageView: View {
                         endPoint: .bottomTrailing
                     )
                     .edgesIgnoringSafeArea(.top)
-
+                    
                     HStack(spacing: -35) {
                         Spacer().frame(width: 90)
                         AnimatedSearchBar(searchtext: $searchText)
                             .onChange(of: searchText) { _ in applyFilters() }
                             .frame(maxWidth: .infinity)
-
+                        
                         // Filter Button
                         if !searchBarState {
                             Spacer().frame(width: 70)
@@ -75,7 +75,7 @@ struct SavedPageView: View {
                 }
                 .frame(height: 120)
                 .cornerRadius(20)
-
+                
                 // Saved Meals List
                 ScrollView {
                     VStack(spacing: 20) {
@@ -114,7 +114,7 @@ struct SavedPageView: View {
                                                 .cornerRadius(10)
                                                 .overlay(Text("No Image").foregroundColor(.gray))
                                         }
-
+                                        
                                         VStack(alignment: .leading) {
                                             Text(meal.strMeal)
                                                 .font(.headline)
@@ -122,7 +122,7 @@ struct SavedPageView: View {
                                                 .multilineTextAlignment(.leading)
                                                 .frame(maxWidth: .infinity, alignment: .leading)
                                         }
-
+                                        
                                         Button(action: {
                                             removeRecipe(meal)
                                         }) {
@@ -146,7 +146,7 @@ struct SavedPageView: View {
                         .frame(height: 100)
                 }
                 .onAppear {
-                        fetchAndUpdateSavedMeals() // Always fetch data when this view appears
+                    fetchAndUpdateSavedMeals() // Always fetch data when this view appears
                     
                 }
                 .onChange(of: savedMeals) { _ in
@@ -158,32 +158,32 @@ struct SavedPageView: View {
             .ignoresSafeArea()
         }
     }
-
+    
     // Apply filters based on user selections
     func applyFilters() {
         var filtered = savedMeals
-
+        
         if selectedCategorySaved != "All" {
             filtered = filtered.filter { $0.strCategory == selectedCategorySaved }
         }
-
+        
         if selectedAreaSaved != "All" {
             filtered = filtered.filter { $0.strArea == selectedAreaSaved }
         }
-
+        
         if selectedTagSaved != "All" {
             filtered = filtered.filter { $0.strTags?.contains(selectedTagSaved) == true }
         }
-
+        
         if !searchText.isEmpty {
             filtered = filtered.filter { $0.strMeal.localizedCaseInsensitiveContains(searchText) }
         }
-
+        
         DispatchQueue.main.async {
             filteredSavedMeals = filtered
         }
     }
-
+    
     // Clear all applied filters
     func clearFilters() {
         selectedCategorySaved = "All"
@@ -192,14 +192,14 @@ struct SavedPageView: View {
         searchText = ""
         filteredSavedMeals = savedMeals
     }
-
+    
     // Remove a recipe from saved meals
     func removeRecipe(_ meal: Meal) {
         guard let userID = Auth.auth().currentUser?.uid else { return }
-
+        
         let db = Firestore.firestore()
         let recipeRef = db.collection("users").document(userID).collection("savedRecipes").document(meal.idMeal)
-
+        
         recipeRef.delete { error in
             if let error = error {
                 print("Failed to remove recipe: \(error)")
@@ -215,7 +215,7 @@ struct SavedPageView: View {
             print("Error: User not logged in.")
             return
         }
-
+        
         isLoading = true
         FirestoreHelper.shared.fetchSavedMeals(for: userID) { fetchedMeals in
             DispatchQueue.main.async {
@@ -242,7 +242,7 @@ struct SavedPageView: View {
             }
         }
     }
-
+    
 }
 
 #Preview {

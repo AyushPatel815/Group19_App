@@ -13,7 +13,7 @@ import FirebaseAuth
 class FirebaseAuthHelper {
     static let shared = FirebaseAuthHelper()  // Singleton instance for global access
     private let db = Firestore.firestore()  // Firestore reference
-
+    
     // MARK: - Register User
     func registerUser(email: String, password: String, firstName: String, lastName: String, completion: @escaping (Error?) -> Void) {
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
@@ -37,7 +37,7 @@ class FirebaseAuthHelper {
             }
         }
     }
-
+    
     // MARK: - Login User
     func loginUser(email: String, password: String, completion: @escaping (Error?) -> Void) {
         Auth.auth().signIn(withEmail: email, password: password) { _, error in

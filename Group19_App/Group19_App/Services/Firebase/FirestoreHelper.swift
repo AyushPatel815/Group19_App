@@ -19,8 +19,8 @@ class FirestoreHelper {
     private let storage = Storage.storage()   // Firebase Storage reference
     
     private init() {}   // Private initializer to enforce singleton pattern
-
-
+    
+    
     // Save Recipe to Firestore (specific to the authenticated user)
     func saveRecipe(recipe: Meal, completion: @escaping (Error?) -> Void) {
         guard let user = Auth.auth().currentUser else {
@@ -42,7 +42,7 @@ class FirestoreHelper {
             "addedBy": user.uid,
             "timestamp": Timestamp(date: Date())
         ]
-
+        
         // Save recipe to user's `savedRecipes` subcollection
         db.collection("users").document(user.uid).collection("savedRecipes").document(recipe.idMeal).setData(recipeData) { error in
             completion(error)
@@ -52,79 +52,79 @@ class FirestoreHelper {
     
     // Save Recipe with Media (Images)
     func saveRecipeWithMedia(recipe: Meal, images: [UIImage], completion: @escaping (Error?) -> Void) {
-            guard let userID = Auth.auth().currentUser?.uid else {
-                completion(NSError(domain: "", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"]))
-                return
-            }
- 
-            let recipeID = recipe.idMeal    // Unique ID for the recipe
-            var uploadedImageURLs: [String] = []    // Store uploaded image URLs
-            let uploadGroup = DispatchGroup()   // Dispatch group for managing uploads
-
-        // Loop through images to upload each one to Firebase Storage
-            for (index, image) in images.enumerated() {
-                uploadGroup.enter()
-                guard let imageData = image.jpegData(compressionQuality: 0.8) else {
-                    print("Error converting image \(index) to JPEG data.")
-                    uploadGroup.leave()
-                    continue
-                }
-
-                let metadata = StorageMetadata()
-                metadata.contentType = "image/jpeg" // Set correct Content-Type for image
-
-                let imageRef = storage.reference().child("users/\(userID)/recipes/\(recipeID)/\(UUID().uuidString).jpg")
-                imageRef.putData(imageData, metadata: metadata) { _, error in
-                    if let error = error {
-                        print("Error uploading image \(index): \(error)")
-                        
-                        uploadGroup.leave()
-                        return
-                    }
-                    imageRef.downloadURL { url, error in
-                        if let url = url {
-                            uploadedImageURLs.append(url.absoluteString)
-                        } else {
-                            print("Error getting download URL for image \(index): \(String(describing: error))")
-                        }
-                        uploadGroup.leave()
-                    }
-                }
-            }
-
-        // Notify when all image uploads are complete
-            uploadGroup.notify(queue: .main) {
-                var recipeData: [String: Any] = [
-                    "idMeal": recipeID,
-                    "strMeal": recipe.strMeal,
-                    "strCategory": recipe.strCategory,
-                    "strArea": recipe.strArea,
-                    "strInstructions": recipe.strInstructions,
-                    "strYoutube": recipe.strYoutube,
-                    "strIngredients": recipe.strIngredients,
-                    "strMeasures": recipe.strMeasures,
-                    "addedBy": userID,
-                    "timestamp": Timestamp(date: Date())
-                ]
-
-                if !uploadedImageURLs.isEmpty {
-                    recipeData["images"] = uploadedImageURLs
-                }else {
-                    print("No images uploaded for recipe: \(recipe.strMeal)")
-                }
-
-                self.db.collection("users").document(userID).collection("recipes").document(recipeID).setData(recipeData) { error in
-                    if let error = error {
-                        print("Error saving recipe to Firestore: \(error)")
-                    } else {
-                        print("Recipe saved successfully to Firestore.")
-                    }
-                    completion(error)
-                }
-            }
-        
+        guard let userID = Auth.auth().currentUser?.uid else {
+            completion(NSError(domain: "", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"]))
+            return
         }
-
+        
+        let recipeID = recipe.idMeal    // Unique ID for the recipe
+        var uploadedImageURLs: [String] = []    // Store uploaded image URLs
+        let uploadGroup = DispatchGroup()   // Dispatch group for managing uploads
+        
+        // Loop through images to upload each one to Firebase Storage
+        for (index, image) in images.enumerated() {
+            uploadGroup.enter()
+            guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+                print("Error converting image \(index) to JPEG data.")
+                uploadGroup.leave()
+                continue
+            }
+            
+            let metadata = StorageMetadata()
+            metadata.contentType = "image/jpeg" // Set correct Content-Type for image
+            
+            let imageRef = storage.reference().child("users/\(userID)/recipes/\(recipeID)/\(UUID().uuidString).jpg")
+            imageRef.putData(imageData, metadata: metadata) { _, error in
+                if let error = error {
+                    print("Error uploading image \(index): \(error)")
+                    
+                    uploadGroup.leave()
+                    return
+                }
+                imageRef.downloadURL { url, error in
+                    if let url = url {
+                        uploadedImageURLs.append(url.absoluteString)
+                    } else {
+                        print("Error getting download URL for image \(index): \(String(describing: error))")
+                    }
+                    uploadGroup.leave()
+                }
+            }
+        }
+        
+        // Notify when all image uploads are complete
+        uploadGroup.notify(queue: .main) {
+            var recipeData: [String: Any] = [
+                "idMeal": recipeID,
+                "strMeal": recipe.strMeal,
+                "strCategory": recipe.strCategory,
+                "strArea": recipe.strArea,
+                "strInstructions": recipe.strInstructions,
+                "strYoutube": recipe.strYoutube,
+                "strIngredients": recipe.strIngredients,
+                "strMeasures": recipe.strMeasures,
+                "addedBy": userID,
+                "timestamp": Timestamp(date: Date())
+            ]
+            
+            if !uploadedImageURLs.isEmpty {
+                recipeData["images"] = uploadedImageURLs
+            }else {
+                print("No images uploaded for recipe: \(recipe.strMeal)")
+            }
+            
+            self.db.collection("users").document(userID).collection("recipes").document(recipeID).setData(recipeData) { error in
+                if let error = error {
+                    print("Error saving recipe to Firestore: \(error)")
+                } else {
+                    print("Recipe saved successfully to Firestore.")
+                }
+                completion(error)
+            }
+        }
+        
+    }
+    
     // Fetch saved recipes for the authenticated user
     func fetchSavedRecipes(completion: @escaping ([Meal]?, Error?) -> Void) {
         guard let user = Auth.auth().currentUser else {
@@ -169,34 +169,34 @@ class FirestoreHelper {
             return
         }
         print("User authenticated with ID: \(user.uid)")
-
+        
         db.collectionGroup("recipes").getDocuments { snapshot, error in
             if let error = error {
                 print("Error fetching all user recipes: \(error.localizedDescription)")
                 completion([])
                 return
             }
-
+            
             guard let snapshot = snapshot else {
                 print("Snapshot is nil. No documents found.")
                 completion([])
                 return
             }
-
+            
             print("Number of documents fetched: \(snapshot.documents.count)")
-
+            
             let recipes = snapshot.documents.compactMap { document -> Meal? in
                 let data = document.data()
-
+                
                 // Safeguard against missing fields
                 guard let idMeal = data["idMeal"] as? String,
                       let strMeal = data["strMeal"] as? String else {
                     print("Missing required fields in document: \(document.documentID)")
                     return nil
                 }
-
+                
                 let strYoutube = data["strYoutube"] as? String ?? "" // Explicitly handle YouTube link
-
+                
                 return Meal(
                     idMeal: idMeal,
                     strMeal: strMeal,
@@ -211,12 +211,12 @@ class FirestoreHelper {
                     isUserAdded: true
                 )
             }
-
+            
             print("Recipes Decoded: \(recipes)") // Log decoded recipes
             completion(recipes)
         }
     }
-
+    
     // Helper function to delete Firestore document
     private func deleteFirestoreDocument(_ documentRef: DocumentReference, completion: @escaping (Error?) -> Void) {
         documentRef.delete { error in
@@ -228,7 +228,7 @@ class FirestoreHelper {
             completion(error)
         }
     }
-
+    
     // Helper function to extract Firebase Storage path from URL
     private func getStoragePath(from url: String) -> String? {
         guard let urlComponents = URLComponents(string: url),
@@ -237,7 +237,7 @@ class FirestoreHelper {
         }
         return path
     }
-
+    
     // Live update of User added recipe
     func listenForUserRecipes(completion: @escaping ([Meal]) -> Void) {
         guard let userID = Auth.auth().currentUser?.uid else {
@@ -245,7 +245,7 @@ class FirestoreHelper {
             completion([])
             return
         }
-
+        
         db.collection("users").document(userID).collection("recipes")
             .addSnapshotListener { snapshot, error in
                 if let error = error {
@@ -253,12 +253,12 @@ class FirestoreHelper {
                     completion([])
                     return
                 }
-
+                
                 guard let documents = snapshot?.documents else {
                     completion([])
                     return
                 }
-
+                
                 let recipes = documents.compactMap { document -> Meal? in
                     let data = document.data()
                     return Meal(
@@ -275,11 +275,11 @@ class FirestoreHelper {
                         isUserAdded: true
                     )
                 }
-
+                
                 completion(recipes)
             }
     }
-
+    
     // Live update of All the recipe in API and Firebase
     func listenForAllRecipes(existingRecipes: [Meal], completion: @escaping ([Meal]) -> Void) {
         db.collectionGroup("recipes").addSnapshotListener { snapshot, error in
@@ -288,7 +288,7 @@ class FirestoreHelper {
                 completion([])
                 return
             }
-
+            
             let recipes = snapshot?.documents.compactMap { document -> Meal? in
                 let data = document.data()
                 return Meal(
@@ -303,12 +303,12 @@ class FirestoreHelper {
                     isUserAdded: true
                 )
             }
-
+            
             // Filter out recipes that already exist in `existingRecipes`
             let uniqueRecipes = recipes?.filter { newRecipe in
                 !existingRecipes.contains { $0.idMeal == newRecipe.idMeal }
             }
-
+            
             completion(uniqueRecipes ?? [])
         }
     }
@@ -317,27 +317,27 @@ class FirestoreHelper {
     func fetchSavedMeals(for userID: String, completion: @escaping ([Meal]) -> Void) {
         let db = Firestore.firestore()
         let recipesRef = db.collection("users").document(userID).collection("savedRecipes")
-
+        
         recipesRef.getDocuments { snapshot, error in
             if let error = error {
                 print("Error fetching saved recipes: \(error)")
                 completion([])
                 return
             }
-
+            
             let fetchedMeals: [Meal] = snapshot?.documents.compactMap { document in
                 try? document.data(as: Meal.self)
             } ?? []
-
+            
             completion(fetchedMeals)
         }
     }
-
+    
     // Delete a meal from Firestore
     func deleteMeal(_ meal: Meal, for userID: String, inCollection collection: String = "recipes", hasMedia: Bool = false, completion: @escaping (Error?) -> Void) {
         let recipeRef = db.collection("users").document(userID).collection(collection).document(meal.idMeal)
         let storageRef = storage.reference().child("users/\(userID)/recipes/\(meal.idMeal)")
-
+        
         if hasMedia {
             // If media files exist, delete them from Firebase Storage first
             storageRef.listAll { result, error in
@@ -346,7 +346,7 @@ class FirestoreHelper {
                     completion(error)
                     return
                 }
-
+                
                 guard let items = result?.items, !items.isEmpty else {
                     print("No files found in storage for \(meal.idMeal)")
                     // Proceed with Firestore document deletion even if no files are found
@@ -361,9 +361,9 @@ class FirestoreHelper {
                     }
                     return
                 }
-
+                
                 let dispatchGroup = DispatchGroup()
-
+                
                 items.forEach { item in
                     dispatchGroup.enter()
                     item.delete { error in
@@ -375,7 +375,7 @@ class FirestoreHelper {
                         dispatchGroup.leave()
                     }
                 }
-
+                
                 dispatchGroup.notify(queue: .main) {
                     // After all media is deleted, remove the Firestore document
                     recipeRef.delete { error in
@@ -400,7 +400,7 @@ class FirestoreHelper {
             }
         }
     }
-
+    
     func deleteFromSavedRecipes(_ meal: Meal, completion: @escaping (Bool) -> Void) {
         let db = Firestore.firestore()
         db.collectionGroup("savedRecipes")
@@ -500,8 +500,8 @@ class FirestoreHelper {
             }
         }
     }
-
-
-
-
+    
+    
+    
+    
 }

@@ -13,32 +13,32 @@ struct AnimatedSearchBar: View {
     @State var state = false
     @State var progress: CGFloat = 1.0
     @State var showTextFi = false
-
+    
     var body: some View {
         ZStack (alignment: .trailing){
             if state {
-            ZStack {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .stroke(lineWidth: 3)
-                    .foregroundColor(.white)
-                if showTextFi {
-                    TextField("Search...", text: $searchtext)
-                        .autocapitalization(.none)
-                        .padding(.horizontal)
-                        .foregroundColor(.black)
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(lineWidth: 3)
+                        .foregroundColor(.white)
+                    if showTextFi {
+                        TextField("Search...", text: $searchtext)
+                            .autocapitalization(.none)
+                            .padding(.horizontal)
+                            .foregroundColor(.black)
+                    }
                 }
+                .frame(width: state ? 400 : 50, height: 50)
+                .foregroundStyle(.white)
+                
             }
-            .frame(width: state ? 400 : 50, height: 50)
-            .foregroundStyle(.white)
-            
-        }
             icon(searchtext: $searchtext, progress: $progress, iconoffset: $iconoffset, state: $state, showTextFi: $showTextFi)
-
+            
         }
         .padding(.horizontal)
         .frame(maxWidth: .infinity, alignment: .trailing)
-
+        
         
     }
 }
@@ -70,7 +70,7 @@ struct icon: View {
             if progress == 1.0 {
                 withAnimation(.linear(duration: 0.5)) {
                     progress = 0.0
-
+                    
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     withAnimation {
@@ -81,11 +81,11 @@ struct icon: View {
                 withAnimation {
                     iconoffset.toggle()
                 }
-               
+                
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     withAnimation(.linear(duration: 0.5)) {
                         progress = 1.0
-
+                        
                     }
                 }
             }
@@ -108,8 +108,8 @@ struct icon: View {
                             .offset(y: -17)
                         
                     }
-
-               
+                
+                
             }
         }
         .offset(x: iconoffset ? -5 : -3, y: iconoffset ? -5 : 2)

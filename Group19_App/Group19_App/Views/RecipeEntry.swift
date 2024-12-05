@@ -16,7 +16,7 @@ struct RecipeEntry: View {
     @Binding var savedMeals: [Meal]  // Binding for saved meals
     var onSave: (Meal) -> Void  // Closure to handle saving a recipe
     
-
+    
     // Filter meals based on search text
     var filteredMeals: [Meal] {
         if searchText.isEmpty {
@@ -25,7 +25,7 @@ struct RecipeEntry: View {
             return meals.filter { $0.strMeal.localizedCaseInsensitiveContains(searchText) }
         }
     }
-
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
@@ -39,12 +39,12 @@ struct RecipeEntry: View {
                                 CustomAsyncImage(url: url)
                                     .frame(width: 120, height: 120)
                                     .cornerRadius(10)
-                                    
+                                
                             } else if let imageUrl = URL(string: meal.strMealThumb), !meal.strMealThumb.isEmpty {
                                 CustomAsyncImage(url: imageUrl)
                                     .frame(width: 120, height: 120)
                                     .cornerRadius(10)
-                                    
+                                
                             } else {
                                 // Placeholder if no image is available
                                 Rectangle()
@@ -52,9 +52,9 @@ struct RecipeEntry: View {
                                     .frame(width: 120, height: 120)
                                     .cornerRadius(10)
                                     .overlay(Text("No Image").foregroundColor(.gray))
-                                    
+                                
                             }
-
+                            
                             // Dish Name on the right
                             Text(meal.strMeal)
                                 .font(.headline)
@@ -62,7 +62,7 @@ struct RecipeEntry: View {
                                 .multilineTextAlignment(.leading)
                                 .padding(.leading)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-
+                            
                             // Save Icon on the far right
                             Button(action: {
                                 saveRecipe(meal)  // Call the onSave closure when the button is tapped
@@ -87,10 +87,10 @@ struct RecipeEntry: View {
     // SaveRecipe function to save recipe and update entry in firebase
     func saveRecipe(_ meal: Meal) {
         guard let userID = Auth.auth().currentUser?.uid else { return }
-
+        
         let db = Firestore.firestore()
         let recipeRef = db.collection("users").document(userID).collection("savedRecipes").document(meal.idMeal)
-
+        
         if savedMeals.contains(where: { $0.idMeal == meal.idMeal }) {
             // Unsaving the meal
             recipeRef.delete { error in
@@ -120,10 +120,10 @@ struct RecipeEntry: View {
 /// Custom AsyncImage with enhanced error handling
 struct CustomAsyncImage: View {
     let url: URL
-
+    
     @State private var uiImage: UIImage?
     @State private var isLoading = true
-
+    
     var body: some View {
         if let uiImage = uiImage {
             Image(uiImage: uiImage)
@@ -146,7 +146,7 @@ struct CustomAsyncImage: View {
                 .overlay(Text("No Image").foregroundColor(.gray))
         }
     }
-
+    
     // Asynchronously load image without hurting other UI component or rendering
     private func loadImage() {
         URLSession.shared.dataTask(with: url) { data, response, error in
@@ -163,7 +163,7 @@ struct CustomAsyncImage: View {
             }
         }.resume()
     }
-
+    
 }
 
 

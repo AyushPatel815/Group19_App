@@ -16,7 +16,7 @@ import FirebaseStorage
 struct ProfilePageView: View {
     @Binding var meals: [Meal]
     @Binding var savedMeals: [Meal]
-
+    
     @State private var userRecipes: [Meal] = []
     @State private var firstName: String = ""
     @State private var lastName: String = ""
@@ -37,12 +37,12 @@ struct ProfilePageView: View {
     @AppStorage("profileImagePath") private var profileImagePath: String = ""
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = true
     @State private var hasFetchedProfile = false
-
+    
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 profileHeader()
-
+                
                 ScrollView {
                     VStack(alignment: .leading, spacing: 30) {
                         userInformationSection()
@@ -70,70 +70,70 @@ struct ProfilePageView: View {
             }
         }
         .onAppear {
-                        loadProfileImage() // Load the saved profile image on appear
-                    }
+            loadProfileImage() // Load the saved profile image on appear
+        }
     }
-
+    
     // MARK: - Profile Header
     @ViewBuilder
-       private func profileHeader() -> some View {
-           ZStack {
-               // Background Shape
-               BottomRoundedShape(cornerRadius: 80)
-                   .fill(LinearGradient(gradient: Gradient(colors: [.yellow, .orange]), startPoint: .topLeading, endPoint: .bottomTrailing))
-                   .frame(height: 180)
-
-               // Profile Image and Sign Out Button
-               HStack {
-                   // Profile Image
-                   Button(action: {
-                       isImagePickerPresented = true // Open the image picker
-                   }) {
-                       if let profileImage = profileImage {
-                           Image(uiImage: profileImage)
-                               .resizable()
-                               .frame(width: 100, height: 100)
-                               .clipShape(Circle())
-                               .overlay(Circle().stroke(Color.white, lineWidth: 2))
-                       } else {
-                           Image(systemName: "person.crop.circle.fill")
-                               .resizable()
-                               .frame(width: 100, height: 100)
-                               .foregroundColor(.white)
-                       }
-                   }
-                   .padding(.leading, 170)
-                   .padding(.top, 45)
-
-                   Spacer()
-
-                   // Sign Out Button
-                   Button(action: {
-                       alertMessage = "Are you sure you want to Log out?"
-                       alertAction = { isLoggedIn = false }
-                       showAlert = true
-                   }) {
-                       Text("Log out")
-                           .font(.subheadline)
-                           .bold()
-                           .padding(.vertical, 5)
-                           .padding(.horizontal, 12)
-                           .background(Color.red.opacity(0.7))
-                           .foregroundColor(.white)
-                           .cornerRadius(8)
-                   }
-                   .padding(.trailing, 20)
-                   .padding(.top,-10)
-               }
-           }
-           .frame(height: 180)
-           .sheet(isPresented: $isImagePickerPresented) {
-               ImagePicker(image: $profileImage, onSave: saveProfileImage)
-           }
-           .ignoresSafeArea(edges: .top)
-       }
-
-       // MARK: - Image Loading & Saving
+    private func profileHeader() -> some View {
+        ZStack {
+            // Background Shape
+            BottomRoundedShape(cornerRadius: 80)
+                .fill(LinearGradient(gradient: Gradient(colors: [.yellow, .orange]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                .frame(height: 180)
+            
+            // Profile Image and Sign Out Button
+            HStack {
+                // Profile Image
+                Button(action: {
+                    isImagePickerPresented = true // Open the image picker
+                }) {
+                    if let profileImage = profileImage {
+                        Image(uiImage: profileImage)
+                            .resizable()
+                            .frame(width: 100, height: 100)
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                    } else {
+                        Image(systemName: "person.crop.circle.fill")
+                            .resizable()
+                            .frame(width: 100, height: 100)
+                            .foregroundColor(.white)
+                    }
+                }
+                .padding(.leading, 170)
+                .padding(.top, 45)
+                
+                Spacer()
+                
+                // Sign Out Button
+                Button(action: {
+                    alertMessage = "Are you sure you want to Log out?"
+                    alertAction = { isLoggedIn = false }
+                    showAlert = true
+                }) {
+                    Text("Log out")
+                        .font(.subheadline)
+                        .bold()
+                        .padding(.vertical, 5)
+                        .padding(.horizontal, 12)
+                        .background(Color.red.opacity(0.7))
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
+                .padding(.trailing, 20)
+                .padding(.top,-10)
+            }
+        }
+        .frame(height: 180)
+        .sheet(isPresented: $isImagePickerPresented) {
+            ImagePicker(image: $profileImage, onSave: saveProfileImage)
+        }
+        .ignoresSafeArea(edges: .top)
+    }
+    
+    // MARK: - Image Loading & Saving
     private func loadProfileImage() {
         guard let userID = Auth.auth().currentUser?.uid else { return }
         
@@ -177,7 +177,7 @@ struct ProfilePageView: View {
             }
         }
     }
-
+    
     /// Save the image URL in Firestore under the user's document
     private func saveProfileImagePathToFirestore(for userID: String, url: String) {
         let db = Firestore.firestore()
@@ -189,9 +189,9 @@ struct ProfilePageView: View {
             }
         }
     }
-
-
-
+    
+    
+    
     // MARK: - User Information Section
     @ViewBuilder
     private func userInformationSection() -> some View {
@@ -201,21 +201,21 @@ struct ProfilePageView: View {
                     .font(.headline)
                 Spacer()
                 Button(action: {
-                                if isEditing {
-                                    // Validate user info before saving
-                                    if validateUserInfo() {
-                                        alertMessage = "Are you sure you want to save changes to your profile?"
-                                        alertAction = handleProfileUpdate
-                                        showAlert = true
-                                        isEditing = false // Exit edit mode only if validation passes
-                                    } else {
-                                        // Validation failed, keep editing mode
-                                        showAlert = true
-                                    }
-                                } else {
-                                    isEditing = true // Enter edit mode
-                                }
-                            }) {
+                    if isEditing {
+                        // Validate user info before saving
+                        if validateUserInfo() {
+                            alertMessage = "Are you sure you want to save changes to your profile?"
+                            alertAction = handleProfileUpdate
+                            showAlert = true
+                            isEditing = false // Exit edit mode only if validation passes
+                        } else {
+                            // Validation failed, keep editing mode
+                            showAlert = true
+                        }
+                    } else {
+                        isEditing = true // Enter edit mode
+                    }
+                }) {
                     Text(isEditing ? "Save" : "Edit")
                         .font(.subheadline)
                         .foregroundColor(.blue)
@@ -224,7 +224,7 @@ struct ProfilePageView: View {
             AccountDetailField(title: "First Name", value: $firstName, isEditable: isEditing)
             AccountDetailField(title: "Last Name", value: $lastName, isEditable: isEditing)
             AccountDetailField(title: "Email", value: $email, isEditable: isEditing)
-
+            
             if isChangingPassword {
                 Divider().padding(.vertical, 10)
                 passwordFields()
@@ -283,11 +283,11 @@ struct ProfilePageView: View {
                     .background(Color.gray.opacity(0.1))
                     .cornerRadius(8)
             }
-
+            
         }
         .padding(.horizontal)
     }
-
+    
     // MARK: - User Recipes Section
     @ViewBuilder
     private func userRecipesSection() -> some View {
@@ -299,7 +299,7 @@ struct ProfilePageView: View {
                 Spacer()
             }
             Divider()
-
+            
             if userRecipes.isEmpty {
                 Text("No Posts yet!")
                     .font(.title2)
@@ -313,39 +313,39 @@ struct ProfilePageView: View {
         }
         .padding(.horizontal)
     }
-
+    
     @ViewBuilder
     private func userRecipeRow(for meal: Meal) -> some View {
         NavigationLink(destination: RecipeDetailPageView(meal: meal)) {
             HStack {
                 if let urlString = meal.imageUrls?.first ?? (meal.strMealThumb.isEmpty ? nil : meal.strMealThumb),
-                               let url = URL(string: urlString) {
-                                ZStack {
-                                    if let image = loadedImages[urlString] {
-                                        // Display the cached image
-                                        Image(uiImage: image)
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 120, height: 120)
-                                            .cornerRadius(10)
-                                    } else {
-                                        // Show a ProgressView while the image is loading
-                                        ProgressView()
-                                            .frame(width: 120, height: 120)
-                                            .onAppear {
-                                                loadImage(from: url, for: urlString)
-                                            }
-                                    }
-                                    
+                   let url = URL(string: urlString) {
+                    ZStack {
+                        if let image = loadedImages[urlString] {
+                            // Display the cached image
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 120, height: 120)
+                                .cornerRadius(10)
+                        } else {
+                            // Show a ProgressView while the image is loading
+                            ProgressView()
+                                .frame(width: 120, height: 120)
+                                .onAppear {
+                                    loadImage(from: url, for: urlString)
                                 }
-                            } else {
+                        }
+                        
+                    }
+                } else {
                     Rectangle()
                         .fill(Color.gray.opacity(0.3))
                         .frame(width: 100, height: 100)
                         .cornerRadius(10)
                         .overlay(Text("No Image").foregroundColor(.gray))
                 }
-
+                
                 VStack(alignment: .leading) {
                     Text(meal.strMeal)
                         .font(.headline)
@@ -355,7 +355,7 @@ struct ProfilePageView: View {
                         .foregroundColor(.gray)
                 }
                 Spacer()
-
+                
                 Button(action: {
                     alertMessage = "Are you sure you want to delete this post?"
                     alertAction = { deleteMeal(meal) }
@@ -370,8 +370,8 @@ struct ProfilePageView: View {
             .cornerRadius(10)
         }
     }
-
-
+    
+    
     @ViewBuilder
     private func passwordFields() -> some View {
         VStack(spacing:10) {
@@ -403,7 +403,7 @@ struct ProfilePageView: View {
                         .autocapitalization(.none)
                 }
                 Button(action: {
-//                    isConfirmPasswordVisible.toggle()
+                    //                    isConfirmPasswordVisible.toggle()
                 }) {
                     Image(systemName: isConfirmPasswordVisible ? "eye.slash" : "eye")
                         .foregroundColor(.gray)
@@ -411,7 +411,7 @@ struct ProfilePageView: View {
             }
         }
     }
-
+    
     // MARK: - Password Save Logic
     private func saveNewPassword() {
         guard !password.isEmpty else {
@@ -429,7 +429,7 @@ struct ProfilePageView: View {
             showAlert = true
             return
         }
-
+        
         Auth.auth().currentUser?.updatePassword(to: password) { error in
             if let error = error {
                 alertMessage = "Error updating password, please open app again"
@@ -459,8 +459,8 @@ struct ProfilePageView: View {
         // Return the original link if it doesn't match the above formats
         return youtubeLink
     }
-
-
+    
+    
     
     
     // MARK: - Validation Function
@@ -469,12 +469,12 @@ struct ProfilePageView: View {
             alertMessage = "First name must be at most 20 characters long."
             return false
         }
-
+        
         if lastName.count > 20 {
             alertMessage = "Last name must be at most 20 characters long."
             return false
         }
-
+        
         if !isValidEmail(email) {
             alertMessage = "Please enter a valid email address containing '@' and '.com'."
             return false
@@ -482,12 +482,12 @@ struct ProfilePageView: View {
         
         return true // All fields are valid
     }
-
+    
     private func isValidEmail(_ email: String) -> Bool {
         let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
         return NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluate(with: email)
     }
-
+    
     // MARK: - Profile Update Logic
     private func handleProfileUpdate() {
         if isChangingPassword {
@@ -500,7 +500,7 @@ struct ProfilePageView: View {
         }
         updateUserProfile()
     }
-
+    
     private func updateUserProfile() {
         guard let userID = Auth.auth().currentUser?.uid else { return }
         if email != Auth.auth().currentUser?.email {
@@ -510,7 +510,7 @@ struct ProfilePageView: View {
                 }
             }
         }
-
+        
         let updatedData: [String: Any] = ["firstName": firstName, "lastName": lastName, "email": email]
         Firestore.firestore().collection("users").document(userID).updateData(updatedData) { error in
             if let error = error {
@@ -518,7 +518,7 @@ struct ProfilePageView: View {
             }
         }
     }
-
+    
     private func fetchUserProfile() {
         guard let userID = Auth.auth().currentUser?.uid else { return }
         Firestore.firestore().collection("users").document(userID).getDocument { snapshot, error in
@@ -532,20 +532,20 @@ struct ProfilePageView: View {
             email = data["email"] as? String ?? Auth.auth().currentUser?.email ?? ""
         }
     }
-
+    
     private func fetchUserRecipes() {
         guard let userID = Auth.auth().currentUser?.uid else { return }
-
+        
         FirestoreHelper.shared.listenForUserRecipes { recipes in
             DispatchQueue.main.async {
                 self.userRecipes = recipes
                 print("Fetched user recipes: \(self.userRecipes)")
-
+                
             }
         }
     }
-
-
+    
+    
     private func deleteMeal(_ meal: Meal) {
         FirestoreHelper.shared.deleteMealFromAllLocations(meal) { success in
             if success {
@@ -561,7 +561,7 @@ struct ProfilePageView: View {
             }
         }
     }
-
+    
     // MARK: - Load Image Function
     private func loadImage(from url: URL, for urlString: String) {
         Task {
@@ -584,7 +584,7 @@ struct AccountDetailField: View {
     @Binding var value: String
     var isEditable: Bool = true
     var isSecure: Bool = false
-
+    
     var body: some View {
         VStack(alignment: .leading) {
             Text(title)
@@ -614,7 +614,7 @@ struct AccountDetailField: View {
 struct ImagePicker: UIViewControllerRepresentable {
     @Binding var image: UIImage?
     var onSave: (UIImage) -> Void
-
+    
     func makeUIViewController(context: Context) -> PHPickerViewController {
         var configuration = PHPickerConfiguration()
         configuration.filter = .images
@@ -622,25 +622,25 @@ struct ImagePicker: UIViewControllerRepresentable {
         picker.delegate = context.coordinator
         return picker
     }
-
+    
     func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
-
+    
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
-
+    
     class Coordinator: NSObject, PHPickerViewControllerDelegate {
         let parent: ImagePicker
-
+        
         init(_ parent: ImagePicker) {
             self.parent = parent
         }
-
+        
         func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
             picker.dismiss(animated: true)
-
+            
             guard let provider = results.first?.itemProvider, provider.canLoadObject(ofClass: UIImage.self) else { return }
-
+            
             provider.loadObject(ofClass: UIImage.self) { [weak self] image, _ in
                 guard let self = self, let uiImage = image as? UIImage else { return }
                 DispatchQueue.main.async {

@@ -14,14 +14,14 @@ struct FilterButtonPageView: View {
     @Binding var selectedCategory: String
     @Binding var selectedArea: String
     @Binding var selectedTag: String
-
+    
     var onApply: () -> Void
     var onClear: () -> Void
-
+    
     @State private var showCategories = true // Initially expanded
     @State private var showAreas = true // Initially expanded
     @State private var showTags = true // Initially expanded
-
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
@@ -32,7 +32,7 @@ struct FilterButtonPageView: View {
                     selectedItem: $selectedCategory,
                     showDropdown: $showCategories
                 )
-
+                
                 // Areas Dropdown Section
                 createDropdownSection(
                     title: "Filter by Areas",
@@ -40,7 +40,7 @@ struct FilterButtonPageView: View {
                     selectedItem: $selectedArea,
                     showDropdown: $showAreas
                 )
-
+                
                 // Tags Dropdown Section
                 createDropdownSection(
                     title: "Filter by Tags",
@@ -49,7 +49,7 @@ struct FilterButtonPageView: View {
                     selectedItem: $selectedTag,
                     showDropdown: $showTags
                 )
-
+                
                 // Clear Filters Button
                 Button(action: {
                     selectedCategory = "All"
@@ -79,7 +79,7 @@ struct FilterButtonPageView: View {
         )
         .toolbarBackground(.visible, for: .navigationBar)
     }
-
+    
     private func createDropdownSection(
         title: String,
         items: [String],
@@ -100,7 +100,7 @@ struct FilterButtonPageView: View {
                         .foregroundColor(.gray)
                 }
             }
-
+            
             // Dropdown List
             if showDropdown.wrappedValue {
                 ForEach(items, id: \.self) { item in
@@ -124,7 +124,7 @@ struct FilterButtonPageView: View {
 struct CheckBoxView: View {
     var isChecked: Bool
     var onToggle: () -> Void
-
+    
     var body: some View {
         Button(action: onToggle) {
             Image(systemName: isChecked ? "checkmark.square.fill" : "square")

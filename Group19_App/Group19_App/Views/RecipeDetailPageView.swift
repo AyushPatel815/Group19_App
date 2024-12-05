@@ -11,11 +11,11 @@ import WebKit
 // WebView to display YouTube videos
 struct WebView: UIViewRepresentable {
     let url: URL
-
+    
     func makeUIView(context: Context) -> WKWebView {
         WKWebView()
     }
-
+    
     func updateUIView(_ uiView: WKWebView, context: Context) {
         let request = URLRequest(url: url)
         uiView.load(request)
@@ -25,7 +25,7 @@ struct WebView: UIViewRepresentable {
 struct RecipeDetailPageView: View {
     var meal: Meal
     @Environment(\.presentationMode) var presentationMode
-
+    
     var body: some View {
         VStack(spacing:0) {
             ScrollView {
@@ -71,7 +71,7 @@ struct RecipeDetailPageView: View {
                                 .overlay(Text("No Image").foregroundColor(.gray))
                                 .padding()
                         }
-
+                        
                         // Conditionally show YouTube video if the link is provided
                         if !meal.strYoutube.isEmpty, let youtubeURL = URL(string: getYouTubeEmbedURL(youtubeLink: meal.strYoutube)) {
                             WebView(url: youtubeURL)
@@ -82,28 +82,28 @@ struct RecipeDetailPageView: View {
                     }
                     .frame(height: 300)
                     .tabViewStyle(PageTabViewStyle()) // Make it look like a slider
-
+                    
                     // Category and Area (Cuisine)
                     HStack {
                         Text("Category: \(meal.strCategory)")
                             .font(.headline)
                             .fontWeight(.bold)
-
+                        
                         Spacer()
-
+                        
                         Text("Area: \(meal.strArea)")
                             .font(.headline)
                             .fontWeight(.bold)
                     }
                     .padding(.vertical)
-
+                    
                     // Ingredients and Measures
                     if !meal.strIngredients.isEmpty {
                         Text("Ingredients")
                             .font(.title2)
                             .fontWeight(.bold)
                             .padding(.vertical, 5)
-
+                        
                         ForEach(0..<meal.strIngredients.count, id: \.self) { index in
                             HStack {
                                 Text("•")
@@ -114,19 +114,19 @@ struct RecipeDetailPageView: View {
                             }
                         }
                     }
-
+                    
                     // Instructions
                     if !meal.strInstructions.isEmpty {
                         Text("Instructions")
                             .font(.title2)
                             .fontWeight(.bold)
                             .padding(.vertical, 10)
-
+                        
                         Text(meal.strInstructions)
                             .font(.body)
                             .padding(.vertical, 5)
                     }
-
+                    
                     // Tags
                     if let tags = meal.strTags, !tags.isEmpty {
                         Text("Tags: \(tags)")
@@ -134,7 +134,7 @@ struct RecipeDetailPageView: View {
                             .fontWeight(.bold)
                             .padding(.vertical, 5)
                     }
-
+                    
                     Spacer().frame(height: 50)
                 }
                 .padding()
@@ -161,7 +161,7 @@ struct RecipeDetailPageView: View {
         }
         
     }
-
+    
     var backButton: some View {
         Button(action: {
             presentationMode.wrappedValue.dismiss()
@@ -174,7 +174,7 @@ struct RecipeDetailPageView: View {
             }
         }
     }
-
+    
     // function to decode YouTube URL
     func getYouTubeEmbedURL(youtubeLink: String) -> String {
         // Check if it's a standard YouTube link
@@ -190,8 +190,8 @@ struct RecipeDetailPageView: View {
         // Return the original link if it doesn't match the above formats
         return youtubeLink
     }
-
-
+    
+    
 }
 
 #Preview {

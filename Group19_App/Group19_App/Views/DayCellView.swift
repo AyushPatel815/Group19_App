@@ -11,7 +11,7 @@ struct DayCellView: View {
     let date: Date
     let hasMealPlan: Bool
     let isSelected: Bool  // Indicates if this day is the selected one
-
+    
     var body: some View {
         VStack {
             Text("\(Calendar.current.component(.day, from: date))")

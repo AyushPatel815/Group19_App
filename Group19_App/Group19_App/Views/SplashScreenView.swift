@@ -17,17 +17,17 @@ struct SplashScreenView: View {
                 endPoint: .bottomTrailing
             )
             .ignoresSafeArea() // Extend the gradient to cover the entire screen
-
+            
             VStack {
                 Spacer()
-
+                
                 // App Logo
                 Image("appLogo")
                     .resizable()
                     .scaledToFit() // Ensures the logo maintains its aspect ratio
                     .frame(width: 300, height: 300) // Adjust the size as needed
                     .padding(.bottom, 20)
-
+                
                 // App Title
                 Text("Welcome to Food Palace!!")
                     .font(.title)
@@ -35,7 +35,7 @@ struct SplashScreenView: View {
                     .foregroundColor(.black) // Ensure good contrast
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40) // Adds spacing for longer text
-
+                
                 Spacer()
                     .frame(height: 500)
             }

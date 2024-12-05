@@ -16,10 +16,10 @@ struct ContentView: View {
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false   // Persistent login state
     @State private var isSplashScreenActive = true // State to handle splash screen visibility
     @State private var showLoginView = false // Tracks the start of the login transition
-
-
+    
+    
     @Namespace var animation   // Namespace for shared animations between views
-
+    
     var body: some View {
         Group {
             if isSplashScreenActive {
@@ -54,7 +54,7 @@ struct ContentView: View {
                             .frame(height: 400)
                     }
                     
-                
+                    
                 }
             } else {
                 
@@ -65,7 +65,7 @@ struct ContentView: View {
                 } else {
                     LoginView()
                         .animation(.easeInOut(duration: 1.0), value: showLoginView)
-
+                    
                 }
             }
         }
@@ -77,7 +77,7 @@ struct ContentView: View {
                 withAnimation {
                     showLoginView = true // Text fades out
                 }
-
+                
                 // Trigger the second animation (switch to login view)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                     withAnimation {
@@ -86,7 +86,7 @@ struct ContentView: View {
                 }
             }
         }
-
+        
     }
     
     // MARK: - Main Content View (TabView)
@@ -127,8 +127,8 @@ struct ContentView: View {
         .padding(.bottom)
         .ignoresSafeArea(.all, edges: .bottom)
     }
-
-
+    
+    
     // MARK: - Tab Button
     func TabButton(tab: Tab) -> some View {
         GeometryReader { proxy in
@@ -159,8 +159,8 @@ struct ContentView: View {
                                                 .padding(25)
                                         }
                                     }
-                                    .contentShape(Rectangle())
-                                    .offset(y: selectedTab == tab ? -15 : 0)
+                                        .contentShape(Rectangle())
+                                        .offset(y: selectedTab == tab ? -15 : 0)
                                 )
                         } else {
                             Image(systemName: selectedTab == tab ? tab.iconName + ".fill" : tab.iconName)
@@ -182,8 +182,8 @@ struct ContentView: View {
                                                 .padding(25)
                                         }
                                     }
-                                    .contentShape(Rectangle())
-                                    .offset(y: selectedTab == tab ? -15 : 0)
+                                        .contentShape(Rectangle())
+                                        .offset(y: selectedTab == tab ? -15 : 0)
                                 )
                         }
                     }
@@ -213,20 +213,20 @@ enum Tab: String, CaseIterable {
     var iconName: String {
         // Map each tab to its system icon name
         switch self {
-            case .Home: return "house"
-            case .Save: return "suit.heart"
-            case .Calendar: return "calendar"
-            case .Profile: return "person"
+        case .Home: return "house"
+        case .Save: return "suit.heart"
+        case .Calendar: return "calendar"
+        case .Profile: return "person"
         }
     }
     
     var TabName: String {
         // Map each tab to its display name
         switch self {
-            case .Home: return "Home"
-            case .Save: return "Favorite"
-            case .Calendar: return "Calendar"
-            case .Profile: return "Profile"
+        case .Home: return "Home"
+        case .Save: return "Favorite"
+        case .Calendar: return "Calendar"
+        case .Profile: return "Profile"
         }
     }
 }

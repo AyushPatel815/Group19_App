@@ -16,12 +16,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     ///   - application: The singleton app object.
     ///   - launchOptions: A dictionary indicating why the app was launched (e.g., a push notification).
     /// - Returns: A boolean indicating whether the app finished launching successfully.
-  func application(_ application: UIApplication,
-                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-    FirebaseApp.configure()   // Initialize Firebase
-
-    return true
-  }
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        FirebaseApp.configure()   // Initialize Firebase
+        
+        return true
+    }
 }
 
 
@@ -38,7 +38,7 @@ struct Group19_AppApp: App {
     
     /// Observes authentication state across the app.
     @StateObject private var authState = AuthState() // Initialize AuthState
-
+    
     // MARK: - Body
     /// Defines the app's main UI scene
     var body: some Scene {

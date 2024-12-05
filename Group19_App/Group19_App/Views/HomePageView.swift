@@ -25,7 +25,7 @@ struct HomePageView: View {
     
     @State private var isDataLoaded = false
     @State private var randomMeals: [Meal] = []   // Meals selected for the carousel display
-
+    
     var body: some View {
         NavigationStack {
             VStack {
@@ -38,7 +38,7 @@ struct HomePageView: View {
                         endPoint: .bottomTrailing
                     )
                     .edgesIgnoringSafeArea(.top)
-
+                    
                     HStack {
                         if !searchBarState {
                             Image(.appLogo)
@@ -54,9 +54,9 @@ struct HomePageView: View {
                                 applySearchFilter()
                             }
                             .frame(maxWidth: .infinity)
-
+                        
                         Spacer(minLength: searchBarState ? 0 : -50) // Adjust spacing dynamically
-
+                        
                         if !searchBarState {
                             
                             // Filter button with NavigationLink to filter page
@@ -88,7 +88,7 @@ struct HomePageView: View {
                             }
                         }
                         
-                
+                        
                     }
                     .padding(.top, 50)
                     .frame(maxWidth: .infinity)
@@ -127,10 +127,10 @@ struct HomePageView: View {
                                 .tabViewStyle(PageTabViewStyle()) // Enable carousel effect
                             }
                         }
-
+                        
                         // Updated RecipeEntry with Navigation, showing filtered meals
                         RecipeEntry(meals: $filteredMeals, searchText: searchText, savedMeals: $savedMeals, onSave: saveRecipe)
-
+                        
                         // Add Clear Filter button after the filtered meals
                         if selectedCategory != "All" || selectedArea != "All" || selectedTag != "All" || !searchText.isEmpty {
                             Button(action: {
@@ -189,23 +189,23 @@ struct HomePageView: View {
         do {
             let apiMeals = try await MealService().fetchAllMeals()
             var allUserMeals: [Meal] = []
-
+            
             // Fetch all user recipes from Firestore
             FirestoreHelper.shared.fetchAllUserRecipes { userMeals in
                 allUserMeals = userMeals
-
+                
                 // Deduplicate recipes by `idMeal`
                 var uniqueMeals = [String: Meal]()
                 (apiMeals + allUserMeals).forEach { meal in
                     uniqueMeals[meal.idMeal] = meal
                 }
-
+                
                 // Convert back to an array and sort
                 meals = Array(uniqueMeals.values).sorted { $0.strMeal < $1.strMeal }
-
+                
                 // Update filteredMeals for the UI
                 filteredMeals = meals
-
+                
                 // Select random meals for the carousel
                 randomMeals = Array(meals.shuffled().prefix(5))
             }
@@ -213,7 +213,7 @@ struct HomePageView: View {
             print("Error merging recipes: \(error)")
         }
     }
-
+    
     
     // Function to load data using MealService
     func loadData() async {
@@ -229,8 +229,8 @@ struct HomePageView: View {
             print("Error fetching meals: \(error)")
         }
     }
-
-
+    
+    
     // Function to filter meals based on search text
     func applySearchFilter() {
         if searchText.isEmpty {
@@ -242,16 +242,16 @@ struct HomePageView: View {
     
     // Apply selected filters to meals
     func applyFilters() {
-            filteredMeals = meals.filter { meal in
-                let categoryMatch = selectedCategory == "All" || meal.strCategory == selectedCategory
-                let areaMatch = selectedArea == "All" || meal.strArea == selectedArea
-                let tagMatch = selectedTag == "All" || (meal.strTags?.contains(selectedTag) ?? false)
-                
-                return categoryMatch && areaMatch && tagMatch
-            }
+        filteredMeals = meals.filter { meal in
+            let categoryMatch = selectedCategory == "All" || meal.strCategory == selectedCategory
+            let areaMatch = selectedArea == "All" || meal.strArea == selectedArea
+            let tagMatch = selectedTag == "All" || (meal.strTags?.contains(selectedTag) ?? false)
+            
+            return categoryMatch && areaMatch && tagMatch
         }
-
-
+    }
+    
+    
     // Function to clear all filters and reload all meals
     func clearFilters() {
         selectedCategory = "All"
@@ -263,41 +263,41 @@ struct HomePageView: View {
     
     // Fetch saved recipes from Firestore
     func fetchSavedRecipes() async {
-            guard let userID = Auth.auth().currentUser?.uid else { return }
-
-            let db = Firestore.firestore()
-            let recipesRef = db.collection("users").document(userID).collection("savedRecipes")
-
-            do {
-                let snapshot = try await recipesRef.getDocuments()
-                let fetchedMeals = snapshot.documents.compactMap { document -> Meal? in
-                    try? document.data(as: Meal.self)
-                }
-                savedMeals = fetchedMeals
-            } catch {
-                print("Error fetching saved recipes: \(error)")
+        guard let userID = Auth.auth().currentUser?.uid else { return }
+        
+        let db = Firestore.firestore()
+        let recipesRef = db.collection("users").document(userID).collection("savedRecipes")
+        
+        do {
+            let snapshot = try await recipesRef.getDocuments()
+            let fetchedMeals = snapshot.documents.compactMap { document -> Meal? in
+                try? document.data(as: Meal.self)
             }
+            savedMeals = fetchedMeals
+        } catch {
+            print("Error fetching saved recipes: \(error)")
         }
-
+    }
+    
     // Save a recipe to Firestore
     func saveRecipe(_ meal: Meal) {
-            guard let userID = Auth.auth().currentUser?.uid else { return }
-
-            let db = Firestore.firestore()
-            let recipeRef = db.collection("users").document(userID).collection("savedRecipes").document(meal.idMeal)
-
-            do {
-                try recipeRef.setData(from: meal) { error in
-                    if let error = error {
-                        print("Failed to save recipe: \(error)")
-                    } else {
-                        savedMeals.append(meal)
-                    }
+        guard let userID = Auth.auth().currentUser?.uid else { return }
+        
+        let db = Firestore.firestore()
+        let recipeRef = db.collection("users").document(userID).collection("savedRecipes").document(meal.idMeal)
+        
+        do {
+            try recipeRef.setData(from: meal) { error in
+                if let error = error {
+                    print("Failed to save recipe: \(error)")
+                } else {
+                    savedMeals.append(meal)
                 }
-            } catch {
-                print("Error encoding meal: \(error)")
             }
+        } catch {
+            print("Error encoding meal: \(error)")
         }
+    }
     
 }
 

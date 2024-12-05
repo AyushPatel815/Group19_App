@@ -12,9 +12,9 @@ struct EditNotesView: View {
     @Binding var notes: [String]  // Binding to hold the notes array
     @State private var newNote: String = ""  // New note input
     @Environment(\.dismiss) var dismiss  // Dismiss the view
-
+    
     var isNewNote: Bool  // Flag to check if this is a new note or editing an existing one
-
+    
     var body: some View {
         VStack {
             // Text editor for the new note or editing an existing note
@@ -22,9 +22,9 @@ struct EditNotesView: View {
                 .padding()
                 .border(Color.gray, width: 1)
                 .frame(height: 150)
-
+            
             Spacer()
-
+            
             // Save the notes and dismiss the view
             Button(action: {
                 if !newNote.isEmpty {

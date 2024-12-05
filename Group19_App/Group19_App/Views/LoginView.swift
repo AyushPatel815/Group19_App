@@ -11,19 +11,19 @@ struct LoginView: View {
     @State private var isLoading: Bool = false
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     @State private var isForgotPasswordPresented: Bool = false // To present Forgot Password dialog
-
+    
     var body: some View {
         NavigationStack {
             VStack {
                 Spacer()
-
+                
                 // Logo or image at the top
                 Image("appLogo")
                     .resizable()
                     .frame(width: 150, height: 120)
                 Spacer()
-
-
+                
+                
                 // Email input
                 VStack(alignment: .leading) {
                     Text("Email")
@@ -40,8 +40,8 @@ struct LoginView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .padding(.horizontal)
-
-
+                
+                
                 // Password input with eye icon
                 VStack(alignment: .leading) {
                     Text("Password")
@@ -64,7 +64,7 @@ struct LoginView: View {
                         }) {
                             Image(systemName: isPasswordVisible ? "eye.slash.fill" : "eye.fill")
                                 .foregroundColor(.gray)
-                                
+                            
                         }
                         .padding(.trailing, 10)
                     }
@@ -76,7 +76,7 @@ struct LoginView: View {
                     .frame(maxWidth: .infinity)
                 }
                 .padding(.horizontal)
-
+                
                 // Forgot password link
                 HStack {
                     Button(action: {
@@ -90,7 +90,7 @@ struct LoginView: View {
                     }
                     Spacer()
                 }
-
+                
                 // Login Button
                 Button(action: {
                     validateAndAuthenticateUser()
@@ -111,7 +111,7 @@ struct LoginView: View {
                             .padding(.top, 20)
                     }
                 }
-
+                
                 // Error message display
                 if let errorMessage = errorMessage {
                     Text(errorMessage)
@@ -119,7 +119,7 @@ struct LoginView: View {
                         .font(.footnote)
                         .padding(.top, 10)
                 }
-
+                
                 // Sign-up link
                 HStack {
                     Text("New to Food Palace?")
@@ -130,7 +130,7 @@ struct LoginView: View {
                     }
                 }
                 .padding(.top, 20)
-
+                
                 Spacer()
                     .frame(height: 250)
             }
@@ -148,29 +148,29 @@ struct LoginView: View {
             })
         }
     }
-
+    
     // MARK: - Firebase Authentication
     func authenticateUser() {
         guard !email.isEmpty, !password.isEmpty else {
             errorMessage = "Please enter email and password."
             return
         }
-
+        
         isLoading = true
         errorMessage = nil
-
+        
         Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
             isLoading = false
             if let error = error {
                 errorMessage = "Login failed: \(error.localizedDescription)"
                 return
             }
-
+            
             // If login is successful, set isLoggedIn to true
             isLoggedIn = true
         }
     }
-
+    
     // MARK: - Forgot Password
     func sendPasswordReset() {
         guard !email.isEmpty else {
@@ -182,19 +182,19 @@ struct LoginView: View {
             errorMessage = "Email must be at least 6 characters long."
             return
         }
-
+        
         guard isValidEmail(email) else {
             errorMessage = "Please enter a valid email address."
             return
         }
-
+        
         // Check if the email exists in Firebase Authentication
         Auth.auth().fetchSignInMethods(forEmail: email) { signInMethods, error in
             if let error = error {
                 errorMessage = "Failed to verify email: \(error.localizedDescription)"
                 return
             }
-
+            
             if let signInMethods = signInMethods, !signInMethods.isEmpty {
                 // Email exists in Firebase, proceed with password reset
                 Auth.auth().sendPasswordReset(withEmail: email) { error in
@@ -210,33 +210,33 @@ struct LoginView: View {
             }
         }
     }
-
+    
     
     // MARK: - Validation and Authentication
-        func validateAndAuthenticateUser() {
-            guard !email.isEmpty, !password.isEmpty else {
-                errorMessage = "Please enter email and password."
-                return
-            }
-
-            guard isValidEmail(email) else {
-                errorMessage = "Please enter a valid email address."
-                return
-            }
-
-            guard password.count >= 6 else {
-                errorMessage = "Password must be at least 6 characters long."
-                return
-            }
-
-            authenticateUser()
+    func validateAndAuthenticateUser() {
+        guard !email.isEmpty, !password.isEmpty else {
+            errorMessage = "Please enter email and password."
+            return
         }
+        
+        guard isValidEmail(email) else {
+            errorMessage = "Please enter a valid email address."
+            return
+        }
+        
+        guard password.count >= 6 else {
+            errorMessage = "Password must be at least 6 characters long."
+            return
+        }
+        
+        authenticateUser()
+    }
     
     func isValidEmail(_ email: String) -> Bool {
-            // Basic regex for email validation
-            let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-            return NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluate(with: email)
-        }
+        // Basic regex for email validation
+        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        return NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluate(with: email)
+    }
 }
 
 

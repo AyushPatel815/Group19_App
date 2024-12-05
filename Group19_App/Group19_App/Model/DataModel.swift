@@ -26,12 +26,12 @@ struct Meal: Codable, Equatable, Identifiable {
     let strIngredients: [String]
     let strMeasures: [String]
     let strTags: String?
-
+    
     // Optional properties for custom images and videos
     var imageUrls: [String]? // Array to store image URLs (Firebase or other sources)
     var videoURLs: [URL]?    // Array to store video URLs
     var isUserAdded: Bool    // Indicates if the recipe is user-added
-
+    
     // Default initializer
     init(
         id: String = UUID().uuidString,
@@ -64,7 +64,7 @@ struct Meal: Codable, Equatable, Identifiable {
         self.isUserAdded = isUserAdded
         self.strTags = strTags
     }
-
+    
     // Coding keys for dynamic encoding/decoding
     enum CodingKeys: String, CodingKey {
         case idMeal, strMeal, strCategory, strArea, strInstructions, strMealThumb, strYoutube
@@ -79,7 +79,7 @@ struct Meal: Codable, Equatable, Identifiable {
         case imageUrls, videoURLs, isUserAdded
         case strTags
     }
-
+    
     // Custom decoding for ingredients and measures
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -94,11 +94,11 @@ struct Meal: Codable, Equatable, Identifiable {
         videoURLs = try container.decodeIfPresent([URL].self, forKey: .videoURLs)
         
         if let youtube = try container.decodeIfPresent(String.self, forKey: .strYoutube) {
-                strYoutube = youtube
-            } else {
-                print("strYoutube missing or empty")
-                strYoutube = ""
-            }
+            strYoutube = youtube
+        } else {
+            print("strYoutube missing or empty")
+            strYoutube = ""
+        }
         
         // Dynamically decode ingredients and measures
         var ingredients = [String]()
@@ -121,9 +121,9 @@ struct Meal: Codable, Equatable, Identifiable {
         id = UUID().uuidString // Ensure `id` is always set
         isUserAdded = try container.decodeIfPresent(Bool.self, forKey: .isUserAdded) ?? false
         strTags = try container.decodeIfPresent(String.self, forKey: .strTags)
-
+        
     }
-
+    
     // Custom encoding for dynamic ingredients and measures
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)

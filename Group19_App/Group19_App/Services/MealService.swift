@@ -70,7 +70,7 @@ struct MealService {
         let mealsResponse = try JSONDecoder().decode(MealsResponse.self, from: data)
         return mealsResponse.meals
     }
-
+    
     // Function to fetch meals by area
     func fetchMealsByArea(_ area: String) async throws -> [Meal] {
         guard let url = URL(string: "https://www.themealdb.com/api/json/v1/1/filter.php?a=\(area)") else {
@@ -81,7 +81,7 @@ struct MealService {
         let mealsResponse = try JSONDecoder().decode(MealsResponse.self, from: data)
         return mealsResponse.meals
     }
-
+    
     // Function to search meals by name
     func searchMeals(by name: String) async throws -> [Meal] {
         guard let url = URL(string: "https://www.themealdb.com/api/json/v1/1/search.php?s=\(name)") else {
@@ -103,7 +103,7 @@ struct MealService {
         let categoryResponse = try JSONDecoder().decode(CategoriesResponse.self, from: data)
         return categoryResponse.categories
     }
-
+    
     // MARK: - Local Storage (Saving and Loading Meals)
     
     // Function to save meals to a JSON file
@@ -114,7 +114,7 @@ struct MealService {
             try? encodedData.write(to: url)
         }
     }
-
+    
     // Function to load meals from a JSON file
     func loadMeals() -> [Meal] {
         let url = getDocumentsDirectory().appendingPathComponent("savedMeals.json")

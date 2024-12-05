@@ -13,7 +13,7 @@ struct MealSectionView: View {
     @Binding var notes: [String]  // Binding to the notes array for this meal type
     @State private var isEditNoteViewPresented = false  // State to show the EditNotesView
     @State private var selectedNoteIndex: Int? = nil  // Track the selected note index for editing
-
+    
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
@@ -27,7 +27,7 @@ struct MealSectionView: View {
                         .foregroundColor(.blue)
                 }
             }
-
+            
             // Display the notes with swipe-to-delete and pencil icon for editing
             if notes.isEmpty {
                 Text("No notes for \(mealType)")
@@ -65,7 +65,7 @@ struct MealSectionView: View {
                 .listStyle(PlainListStyle())
                 .frame(height: CGFloat(notes.count * 60))  // Adjust height dynamically
             }
-
+            
         }
         .padding()
         .sheet(isPresented: $isEditNoteViewPresented) {
@@ -80,7 +80,7 @@ struct MealSectionView: View {
             }
         }
     }
-
+    
     // Function to delete a note at the specified index
     func deleteNote(at offsets: IndexSet) {
         notes.remove(atOffsets: offsets)  // Remove the note at the specified index
@@ -91,20 +91,20 @@ struct MealSectionView: View {
 struct EditSpecificNoteView: View {
     @Binding var note: String  // Binding for the specific note to edit
     var onSave: () -> Void  // Callback when saving the note
-
+    
     var body: some View {
         VStack {
             Text("Edit Note")
                 .font(.title)
                 .padding()
-
+            
             TextEditor(text: $note)  // Edit the note directly
                 .padding()
                 .border(Color.gray, width: 1)
                 .frame(height: 150)
-
+            
             Spacer()
-
+            
             // Save button
             Button(action: {
                 onSave()  // Call the save callback

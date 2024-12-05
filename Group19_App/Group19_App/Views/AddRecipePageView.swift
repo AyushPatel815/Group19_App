@@ -32,7 +32,7 @@ struct AddRecipePageView: View {
     @State private var isUploading = false    // Indicates if data is being uploaded
     @Environment(\.dismiss) var dismiss
     @Binding var meals: [Meal]   // Binding to the list of meals
-
+    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -122,34 +122,34 @@ struct AddRecipePageView: View {
         )
         .toolbarBackground(.visible, for: .navigationBar)
         .navigationBarItems(
-                        leading: Button("Cancel") {
-                            resetFields()
-                            dismiss()
-                        }
-                        .foregroundColor(.red),
-                        
-                        trailing: Button("Post") {
-                            validateAndPost()    // Validate and proceed to post
-                        }
-                        .foregroundColor(.blue)
-                        .disabled( isUploading)    // Disable while uploading
-                    )
+            leading: Button("Cancel") {
+                resetFields()
+                dismiss()
+            }
+                .foregroundColor(.red),
+            
+            trailing: Button("Post") {
+                validateAndPost()    // Validate and proceed to post
+            }
+                .foregroundColor(.blue)
+                .disabled( isUploading)    // Disable while uploading
+        )
         .navigationTitle("Add Recipe")
-                    .alert("Error", isPresented: $showValidationError) {
-                        Button("OK", role: .cancel) { }
-                    } message: {
-                        Text(validationErrorMessage)    // Show validation error message
-                    }
-                    .alert("Confirm Post", isPresented: $showAlert) {
-                        Button("Yes", role: .destructive) {
-                            postRecipe()    // Post recipe on confirmation
-                        }
-                        Button("Cancel", role: .cancel) { }
-                    } message: {
-                        Text("Are you sure you want to post this recipe?")
-                    }
+        .alert("Error", isPresented: $showValidationError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(validationErrorMessage)    // Show validation error message
+        }
+        .alert("Confirm Post", isPresented: $showAlert) {
+            Button("Yes", role: .destructive) {
+                postRecipe()    // Post recipe on confirmation
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Are you sure you want to post this recipe?")
+        }
     }
-
+    
     // Input field helper
     func inputField(title: String, text: Binding<String>) -> some View {
         VStack(alignment: .leading) {
@@ -260,10 +260,10 @@ struct AddRecipePageView: View {
         }
         
         if !strYoutube.isEmpty && !isValidYouTubeURL(strYoutube) {
-                validationErrorMessage = "Please enter a valid YouTube URL"
-                showValidationError = true
-                return
-            }
+            validationErrorMessage = "Please enter a valid YouTube URL"
+            showValidationError = true
+            return
+        }
         
         if ingredients.allSatisfy({ $0.isEmpty }) {
             validationErrorMessage = "At least one ingredient is required."
@@ -280,7 +280,7 @@ struct AddRecipePageView: View {
         // If all validations pass, proceed to show confirmation alert
         showAlert = true
     }
-
+    
     
     // Validate inputs
     func validateInputs() -> Bool {
@@ -299,8 +299,8 @@ struct AddRecipePageView: View {
         // Return true if it contains YouTube and has valid ID or query parameters
         return containsYouTube && hasVideoID
     }
-
-
+    
+    
     
     // Post recipe to Firebase
     func postRecipe() {
@@ -308,7 +308,7 @@ struct AddRecipePageView: View {
             print("Error: User not authenticated.")
             return
         }
-
+        
         let newMeal = Meal(
             idMeal: UUID().uuidString,
             strMeal: strMeal,
@@ -322,15 +322,15 @@ struct AddRecipePageView: View {
         )
         
         for (index, image) in selectedImages.enumerated() {
-                if let imageData = image.jpegData(compressionQuality: 0.8) {
-                    print("Image \(index) size: \(imageData.count) bytes")
-                } else {
-                    print("Failed to convert image \(index) to JPEG data.")
-                }
+            if let imageData = image.jpegData(compressionQuality: 0.8) {
+                print("Image \(index) size: \(imageData.count) bytes")
+            } else {
+                print("Failed to convert image \(index) to JPEG data.")
+            }
         }
-
+        
         isUploading = true // Show a loading indicator
-
+        
         FirestoreHelper.shared.saveRecipeWithMedia(recipe: newMeal, images: selectedImages) { error in
             isUploading = false // Hide the loading indicator
             if let error = error {
@@ -339,20 +339,20 @@ struct AddRecipePageView: View {
                 print("Recipe posted successfully.")
                 
                 Task {
-                                await FirestoreHelper.shared.fetchAllUserRecipes { updatedRecipes in
-                                    DispatchQueue.main.async {
-                                        self.meals = updatedRecipes
-                                    }
-                                }
-                            }
+                    await FirestoreHelper.shared.fetchAllUserRecipes { updatedRecipes in
+                        DispatchQueue.main.async {
+                            self.meals = updatedRecipes
+                        }
+                    }
+                }
                 
                 resetFields()
                 dismiss()
             }
         }
     }
-
-
+    
+    
 }
 
 #Preview {
